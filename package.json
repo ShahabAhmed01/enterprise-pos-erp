@@ -89,6 +89,5 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Enterprise POS ERP"
     }
-  },
-  "type": "module"
+  }
 }
