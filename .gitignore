@@ -1,13 +1,8 @@
 node_modules/
 dist/
 dist-vite/
-.win-unpacked/
+build/
 *.log
 .DS_Store
-Thumbs.db
 .env
 .env.local
-*.local
-*.exe
-*.dmg
-*.AppImage
