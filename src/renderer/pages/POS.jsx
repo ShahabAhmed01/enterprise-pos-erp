@@ -25,6 +25,7 @@ function POS({ user, showToast, setCurrentPage }) {
   const [couponCode, setCouponCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [paidAmount, setPaidAmount] = useState('');
+  const [heldOrders, setHeldOrders] = useState([]);
   const searchInputRef = useRef(null);
 
   useEffect(() => {
@@ -44,33 +45,50 @@ function POS({ user, showToast, setCurrentPage }) {
         e.preventDefault();
         handleQuickSale();
       }
+      if (e.key === 'Escape') {
+        setShowPaymentModal(false);
+        setShowCustomerModal(false);
+        setShowHeldOrders(false);
+        setShowReturnModal(false);
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cart]);
+  }, [cart, selectedCustomer, orderNotes, discountPercent]);
 
   const loadCategories = async () => {
-    if (window.electronAPI) {
-      const result = await window.electronAPI.getCategories();
-      if (result.success) setCategories(result.categories);
+    try {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.getCategories();
+        if (result.success) {
+          setCategories(result.categories);
+          return;
+        }
+      }
+      setCategories([
+        { id: 1, name: 'All Products', icon: '🛍️' },
+        { id: 2, name: 'Electronics', icon: '📱' },
+        { id: 3, name: 'Groceries', icon: '🛒' },
+        { id: 4, name: 'Fashion', icon: '👕' },
+        { id: 5, name: 'Home & Garden', icon: '🏠' },
+        { id: 6, name: 'Health & Beauty', icon: '💊' },
+        { id: 7, name: 'Sports', icon: '⚽' },
+        { id: 8, name: 'Books', icon: '📚' },
+      ]);
+    } catch (error) {
+      showToast('Failed to load categories', 'error');
     }
-    setCategories([
-      { id: 1, name: 'All Products', icon: '🛍️' },
-      { id: 2, name: 'Electronics', icon: '📱' },
-      { id: 3, name: 'Groceries', icon: '🛒' },
-      { id: 4, name: 'Fashion', icon: '👕' },
-      { id: 5, name: 'Home & Garden', icon: '🏠' },
-      { id: 6, name: 'Health & Beauty', icon: '💊' },
-      { id: 7, name: 'Sports', icon: '⚽' },
-      { id: 8, name: 'Books', icon: '📚' },
-    ]);
   };
 
   const loadProducts = async () => {
-    if (window.electronAPI) {
-      const result = await window.electronAPI.getProducts({ page: 1, limit: 100, status: 1 });
-      if (result.success) setProducts(result.products);
-    } else {
+    try {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.getProducts({ page: 1, limit: 100, status: 1 });
+        if (result.success) {
+          setProducts(result.products);
+          return;
+        }
+      }
       setProducts([
         { id: '1', name: 'Wireless Headphones', sku: 'ELEC001', selling_price: 89.99, stock_quantity: 50, image: null, category_name: 'Electronics' },
         { id: '2', name: 'USB-C Cable 2m', sku: 'ELEC002', selling_price: 15.99, stock_quantity: 100, image: null, category_name: 'Electronics' },
@@ -81,6 +99,8 @@ function POS({ user, showToast, setCurrentPage }) {
         { id: '7', name: 'LED Desk Lamp', sku: 'HOME001', selling_price: 45.99, stock_quantity: 45, image: null, category_name: 'Home & Garden' },
         { id: '8', name: 'Yoga Mat', sku: 'SPRT001', selling_price: 49.99, stock_quantity: 60, image: null, category_name: 'Sports' },
       ]);
+    } catch (error) {
+      showToast('Failed to load products', 'error');
     }
   };
 
@@ -88,20 +108,26 @@ function POS({ user, showToast, setCurrentPage }) {
     setSearchQuery(query);
     if (query.length < 2) return;
     
-    if (window.electronAPI) {
-      const result = await window.electronAPI.searchProducts({ query, limit: 20 });
-      if (result.success) setProducts(result.products);
+    try {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.searchProducts({ query, limit: 20 });
+        if (result.success) setProducts(result.products);
+      }
+    } catch (error) {
+      showToast('Search failed', 'error');
     }
   };
 
   const loadHeldOrders = async () => {
-    if (window.electronAPI) {
-      const result = await window.electronAPI.getHeldOrders({ userId: user?.id });
-      if (result.success) setHeldOrders(result.orders || []);
+    try {
+      if (window.electronAPI && user?.id) {
+        const result = await window.electronAPI.getHeldOrders({ userId: user.id });
+        if (result.success) setHeldOrders(result.orders || []);
+      }
+    } catch (error) {
+      console.error('Failed to load held orders:', error);
     }
   };
-
-  const [heldOrders, setHeldOrders] = useState([]);
 
   const addToCart = (product) => {
     const existingItem = cart.find(item => item.product_id === product.id);
@@ -158,12 +184,10 @@ function POS({ user, showToast, setCurrentPage }) {
 
   const clearCart = () => {
     if (cart.length === 0) return;
-    if (confirm('Clear all items from cart?')) {
-      setCart([]);
-      setSelectedCustomer(null);
-      setOrderNotes('');
-      setDiscountPercent(0);
-    }
+    setCart([]);
+    setSelectedCustomer(null);
+    setOrderNotes('');
+    setDiscountPercent(0);
   };
 
   const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
@@ -171,7 +195,7 @@ function POS({ user, showToast, setCurrentPage }) {
   const totalTax = cart.reduce((sum, item) => sum + (item.subtotal * item.tax_rate / 100), 0);
   const grandTotal = subtotal - discountAmount + totalTax;
 
-  const handleQuickSale = async () => {
+  const handleQuickSale = () => {
     if (cart.length === 0) {
       showToast('Add items to cart first', 'warning');
       return;
@@ -222,6 +246,8 @@ function POS({ user, showToast, setCurrentPage }) {
           printReceipt(result.saleId);
         } else {
           showToast(result.message || 'Sale failed', 'error');
+          setIsProcessing(false);
+          return;
         }
       } else {
         showToast('Sale completed! (Demo mode)', 'success');
@@ -242,10 +268,13 @@ function POS({ user, showToast, setCurrentPage }) {
   };
 
   const printReceipt = (saleId) => {
+    const businessName = 'Enterprise POS';
+    const businessAddress = '123 Business Street';
+    
     const printContent = `
       <div style="font-family: monospace; width: 80mm; padding: 10px;">
-        <h2 style="text-align: center; margin: 0;">🏪 Enterprise POS</h2>
-        <p style="text-align: center; margin: 5px 0;">123 Business Street</p>
+        <h2 style="text-align: center; margin: 0;">🏪 ${businessName}</h2>
+        <p style="text-align: center; margin: 5px 0;">${businessAddress}</p>
         <hr style="border: 1px dashed #000; margin: 10px 0;">
         <p><strong>Date:</strong> ${format(new Date(), 'yyyy-MM-dd HH:mm')}</p>
         <p><strong>Ref:</strong> ${saleId ? saleId.slice(0, 8) : 'DEMO'}</p>
@@ -292,9 +321,11 @@ function POS({ user, showToast, setCurrentPage }) {
     `;
 
     const printWindow = window.open('', '', 'width=300,height=600');
-    printWindow.document.write(printContent);
-    printWindow.document.close();
-    printWindow.print();
+    if (printWindow) {
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.print();
+    }
   };
 
   const holdOrder = async () => {
@@ -303,29 +334,39 @@ function POS({ user, showToast, setCurrentPage }) {
       return;
     }
 
-    if (window.electronAPI) {
-      const result = await window.electronAPI.holdOrder({
-        user_id: user?.id,
-        items: cart.length,
-        grand_total: grandTotal,
-        cart_data: cart
-      });
-      if (result.success) {
-        showToast(`Order held! Ref: ${result.reference}`, 'success');
+    try {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.holdOrder({
+          user_id: user?.id,
+          items: cart,
+          grand_total: grandTotal,
+          cart_data: cart
+        });
+        if (result.success) {
+          showToast(`Order held! Ref: ${result.reference}`, 'success');
+          setCart([]);
+          loadHeldOrders();
+        }
+      } else {
+        showToast('Order held! (Demo mode)', 'success');
         setCart([]);
-        loadHeldOrders();
       }
-    } else {
-      showToast('Order held! (Demo mode)', 'success');
-      setCart([]);
+    } catch (error) {
+      showToast('Failed to hold order', 'error');
     }
   };
 
   const recallOrder = async (order) => {
     try {
-      const orderData = order.order_data?.cart_data || JSON.parse(order.order_data)?.cart_data;
+      let orderData = null;
+      if (typeof order.order_data === 'string') {
+        const parsed = JSON.parse(order.order_data);
+        orderData = parsed.cart_data || parsed;
+      } else {
+        orderData = order.order_data?.cart_data || order.order_data;
+      }
       if (orderData) {
-        setCart(orderData);
+        setCart(Array.isArray(orderData) ? orderData : [orderData]);
         showToast('Order recalled!', 'success');
       }
     } catch (e) {
@@ -334,8 +375,8 @@ function POS({ user, showToast, setCurrentPage }) {
   };
 
   const applyDiscount = () => {
-    const percent = prompt('Enter discount percentage (0-100):');
-    if (percent && !isNaN(percent)) {
+    const percent = prompt('Enter discount percentage (0-100):', discountPercent.toString());
+    if (percent !== null && !isNaN(percent) && percent !== '') {
       setDiscountPercent(Math.min(100, Math.max(0, parseFloat(percent))));
     }
   };
@@ -376,12 +417,22 @@ function POS({ user, showToast, setCurrentPage }) {
 
           {/* Categories */}
           <div className="flex gap-2 mt-4 overflow-x-auto pb-2 no-scrollbar">
-            {categories.map((cat) => (
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+                !selectedCategory
+                  ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              🛍️ All Products
+            </button>
+            {categories.filter(c => c.id !== 1).map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id === 1 ? null : cat.id)}
+                onClick={() => setSelectedCategory(cat.id)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                  (cat.id === 1 && !selectedCategory) || selectedCategory === cat.id
+                  selectedCategory === cat.id
                     ? 'bg-red-500 text-white shadow-lg shadow-red-500/25'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
@@ -396,12 +447,15 @@ function POS({ user, showToast, setCurrentPage }) {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <AnimatePresence>
-              {products.map((product) => (
+              {products
+                .filter(p => !selectedCategory || p.category_id === selectedCategory || p.category_name === categories.find(c => c.id === selectedCategory)?.name)
+                .map((product) => (
                 <motion.button
                   key={product.id}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
+                  layout
                   onClick={() => addToCart(product)}
                   className="card p-4 text-left hover:border-red-200 hover:shadow-lg hover:-translate-y-1 transition-all group"
                 >
@@ -423,6 +477,13 @@ function POS({ user, showToast, setCurrentPage }) {
               ))}
             </AnimatePresence>
           </div>
+          {products.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-400">
+              <Search className="w-16 h-16 mb-4 opacity-50" />
+              <p>No products found</p>
+              <p className="text-sm">Try a different search term</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -611,13 +672,15 @@ function POS({ user, showToast, setCurrentPage }) {
                         onChange={(e) => setPaidAmount(e.target.value)}
                         className="input input-lg text-right text-2xl"
                         placeholder="0.00"
+                        min="0"
+                        step="0.01"
                       />
                     </div>
                     <div className="flex gap-2">
                       {[10, 20, 50, 100, 500].map((val) => (
                         <button
                           key={val}
-                          onClick={() => setPaidAmount(grandTotal <= val ? val : grandTotal.toFixed(2))}
+                          onClick={() => setPaidAmount(Math.max(grandTotal, val).toFixed(2))}
                           className="flex-1 btn-outline py-3"
                         >
                           ${val}
@@ -636,7 +699,7 @@ function POS({ user, showToast, setCurrentPage }) {
                 {/* Complete Button */}
                 <button
                   onClick={handleCompleteSale}
-                  disabled={isProcessing}
+                  disabled={isProcessing || (paymentMethod === 'cash' && (!paidAmount || parseFloat(paidAmount) < grandTotal))}
                   className="btn-primary w-full py-4 text-lg mt-6"
                 >
                   {isProcessing ? (
@@ -693,7 +756,7 @@ function POS({ user, showToast, setCurrentPage }) {
                       >
                         <div>
                           <p className="font-medium text-gray-900">{order.reference}</p>
-                          <p className="text-sm text-gray-500">{order.items_count} items • ${order.grand_total?.toFixed(2)}</p>
+                          <p className="text-sm text-gray-500">{order.items_count || 0} items • ${order.grand_total?.toFixed(2)}</p>
                         </div>
                         <button
                           onClick={() => { recallOrder(order); setShowHeldOrders(false); }}

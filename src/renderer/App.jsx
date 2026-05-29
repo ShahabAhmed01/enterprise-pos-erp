@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ErrorBoundary from './components/ErrorBoundary';
 import { Login } from './pages/Login';
 import { Splash } from './pages/Splash';
 import Dashboard from './pages/Dashboard';
@@ -115,6 +116,7 @@ function App() {
   }
 
   return (
+    <ErrorBoundary>
     <AppContext.Provider value={{ user, theme, setTheme, showToast }}>
       <div className={`flex h-screen bg-gray-50 ${theme === 'dark' ? 'dark' : ''}`}>
         <Sidebar 
@@ -158,6 +160,7 @@ function App() {
         </AnimatePresence>
       </div>
     </AppContext.Provider>
+    </ErrorBoundary>
   );
 }
 

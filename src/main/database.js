@@ -889,22 +889,100 @@ async function seedInitialData() {
   const insertBrand = db.prepare('INSERT INTO brands (id, name, description) VALUES (?, ?, ?)');
   brands.forEach(brand => insertBrand.run(brand.id, brand.name, brand.description));
 
-  // Create demo products
+  // Create demo products (using category/brand IDs directly to avoid index misalignment)
+  const categoryIds = categories.map(c => c.id);
+  const brandIds = brands.map(b => b.id);
+  const unitPcsId = units[0].id;
+  
   const productData = [
-    { sku: 'ELEC001', barcode: '123456789001', name: 'Wireless Bluetooth Headphones', category: 0, brand: 0, cost: 45.00, price: 89.99 },
-    { sku: 'ELEC002', barcode: '123456789002', name: 'USB-C Charging Cable 2m', category: 0, brand: 1, cost: 5.00, price: 15.99 },
-    { sku: 'ELEC003', barcode: '123456789003', name: 'Smart Watch Pro', category: 0, brand: 1, cost: 120.00, price: 249.99 },
-    { sku: 'GROC001', barcode: '234567890001', name: 'Premium Coffee Beans 500g', category: 1, brand: 5, cost: 8.00, price: 18.99 },
-    { sku: 'GROC002', barcode: '234567890002', name: 'Organic Olive Oil 1L', category: 1, brand: 7, cost: 12.00, price: 24.99 },
-    { sku: 'FASH001', barcode: '345678901001', name: 'Running Shoes Air Max', category: 2, brand: 3, cost: 65.00, price: 129.99 },
-    { sku: 'FASH002', barcode: '345678901002', name: 'Classic Cotton T-Shirt', category: 2, brand: 4, cost: 12.00, price: 34.99 },
-    { sku: 'HOME001', barcode: '456789012001', name: 'LED Desk Lamp', category: 3, brand: 2, cost: 18.00, price: 45.99 },
-    { sku: 'HOME002', barcode: '456789012002', name: 'Ceramic Plant Pot Set', category: 3, brand: null, cost: 15.00, price: 39.99 },
-    { sku: 'HLTH001', barcode: '567890123001', name: 'Vitamin D3 Supplements 60ct', category: 4, brand: null, cost: 10.00, price: 24.99 },
-    { sku: 'SPRT001', barcode: '678901234001', name: 'Yoga Mat Premium', category: 5, brand: null, cost: 20.00, price: 49.99 },
-    { sku: 'BOOK001', barcode: '789012345001', name: 'Business Management Guide', category: 6, brand: null, cost: 15.00, price: 34.99 },
-    { sku: 'TOYS001', barcode: '890123456001', name: 'Building Blocks Set 500pc', category: 7, brand: null, cost: 25.00, price: 59.99 }
+    { sku: 'ELEC001', barcode: '123456789001', name: 'Wireless Bluetooth Headphones', category_id: categoryIds[0], brand_id: brandIds[0], cost: 45.00, price: 89.99 },
+    { sku: 'ELEC002', barcode: '123456789002', name: 'USB-C Charging Cable 2m', category_id: categoryIds[0], brand_id: brandIds[1], cost: 5.00, price: 15.99 },
+    { sku: 'ELEC003', barcode: '123456789003', name: 'Smart Watch Pro', category_id: categoryIds[0], brand_id: brandIds[1], cost: 120.00, price: 249.99 },
+    { sku: 'GROC001', barcode: '234567890001', name: 'Premium Coffee Beans 500g', category_id: categoryIds[1], brand_id: brandIds[5], cost: 8.00, price: 18.99 },
+    { sku: 'GROC002', barcode: '234567890002', name: 'Organic Olive Oil 1L', category_id: categoryIds[1], brand_id: brandIds[7], cost: 12.00, price: 24.99 },
+    { sku: 'FASH001', barcode: '345678901001', name: 'Running Shoes Air Max', category_id: categoryIds[2], brand_id: brandIds[3], cost: 65.00, price: 129.99 },
+    { sku: 'FASH002', barcode: '345678901002', name: 'Classic Cotton T-Shirt', category_id: categoryIds[2], brand_id: brandIds[4], cost: 12.00, price: 34.99 },
+    { sku: 'HOME001', barcode: '456789012001', name: 'LED Desk Lamp', category_id: categoryIds[3], brand_id: brandIds[2], cost: 18.00, price: 45.99 },
+    { sku: 'HOME002', barcode: '456789012002', name: 'Ceramic Plant Pot Set', category_id: categoryIds[3], brand_id: null, cost: 15.00, price: 39.99 },
+    { sku: 'HLTH001', barcode: '567890123001', name: 'Vitamin D3 Supplements 60ct', category_id: categoryIds[4], brand_id: null, cost: 10.00, price: 24.99 },
+    { sku: 'SPRT001', barcode: '678901234001', name: 'Yoga Mat Premium', category_id: categoryIds[5], brand_id: null, cost: 20.00, price: 49.99 },
+    { sku: 'BOOK001', barcode: '789012345001', name: 'Business Management Guide', category_id: categoryIds[6], brand_id: null, cost: 15.00, price: 34.99 },
+    { sku: 'TOYS001', barcode: '890123456001', name: 'Building Blocks Set 500pc', category_id: categoryIds[7], brand_id: null, cost: 25.00, price: 59.99 }
   ];
+  const insertProduct = db.prepare(`
+    INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, tax_rate, is_track_stock)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const insertStock = db.prepare(`
+    INSERT INTO stock (id, product_id, warehouse_id, quantity)
+    VALUES (?, ?, ?, ?)
+  `);
+
+  productData.forEach(product => {
+    const productId = uuidv4();
+    insertProduct.run(
+      productId,
+      product.sku,
+      product.barcode,
+      product.name,
+      `High quality ${product.name.toLowerCase()}`,
+      product.category_id,
+      product.brand_id,
+      unitPcsId,
+      product.cost,
+      product.price,
+      10.00,
+      1
+    );
+    
+    // Add stock
+    const stockQty = Math.floor(Math.random() * 100) + 20;
+    insertStock.run(uuidv4(), productId, mainWarehouseId, stockQty);
+  });
+  const insertProduct = db.prepare(`
+    INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, tax_rate, is_track_stock)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const insertStock = db.prepare(`
+    INSERT INTO stock (id, product_id, warehouse_id, quantity)
+    VALUES (?, ?, ?, ?)
+  `);
+
+  productData.forEach(product => {
+    const productId = uuidv4();
+    insertProduct.run(
+      productId,
+      product.sku,
+      product.barcode,
+      product.name,
+      `High quality ${product.name.toLowerCase()}`,
+      product.category_id,
+      product.brand_id,
+      unitPcsId,
+      product.cost,
+      product.price,
+      10.00,
+      1
+    );
+    
+    // Add stock
+    const stockQty = Math.floor(Math.random() * 100) + 20;
+    insertStock.run(uuidv4(), productId, mainWarehouseId, stockQty);
+  });
+
+  // Create demo customer
+  db.prepare(`
+    INSERT INTO customers (id, code, first_name, last_name, email, phone, customer_type, membership_level, is_active)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(uuidv4(), 'CUST001', 'John', 'Doe', 'john.doe@email.com', '+1234567890', 'individual', 'gold', 1);
+
+  // Create demo supplier
+  db.prepare(`
+    INSERT INTO suppliers (id, code, name, email, phone, is_active)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).run(uuidv4(), 'SUPP001', 'Global Distributors Inc.', 'orders@globaldist.com', '+1987654321', 1);
 
   const insertProduct = db.prepare(`
     INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, tax_rate, is_track_stock)

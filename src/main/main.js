@@ -58,7 +58,7 @@ function createSplashWindow() {
     }
   });
 
-  splashWindow.loadFile(path.join(__dirname, '../../dist-vite/splash.html'));
+  splashWindow.loadFile(path.join(__dirname, '../../splash.html'));
   
   splashWindow.on('closed', () => {
     splashWindow = null;
@@ -89,7 +89,6 @@ function createMainWindow() {
   const isDev = !app.isPackaged;
   if (isDev) {
     mainWindow.loadURL('http://localhost:5173');
-    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, '../../dist-vite/index.html'));
   }
@@ -167,8 +166,7 @@ function createApplicationMenu() {
       submenu: [
         { label: 'POS', accelerator: 'CmdOrCtrl+1', click: () => mainWindow?.webContents.send('navigate', '/pos') },
         { label: 'Sales List', accelerator: 'CmdOrCtrl+2', click: () => mainWindow?.webContents.send('navigate', '/sales') },
-        { label: 'Returns', click: () => mainWindow?.webContents.send('navigate', '/returns') },
-        { label: 'Quotations', click: () => mainWindow?.webContents.send('navigate', '/quotations') }
+        { label: 'Returns', click: () => mainWindow?.webContents.send('navigate', '/returns') }
       ]
     },
     {
@@ -177,45 +175,36 @@ function createApplicationMenu() {
         { label: 'Products', accelerator: 'CmdOrCtrl+3', click: () => mainWindow?.webContents.send('navigate', '/products') },
         { label: 'Categories', click: () => mainWindow?.webContents.send('navigate', '/categories') },
         { label: 'Brands', click: () => mainWindow?.webContents.send('navigate', '/brands') },
-        { label: 'Warehouses', click: () => mainWindow?.webContents.send('navigate', '/warehouses') },
-        { label: 'Stock Transfer', click: () => mainWindow?.webContents.send('navigate', '/transfers') },
-        { label: 'Stock Adjustment', click: () => mainWindow?.webContents.send('navigate', '/adjustments') }
+        { label: 'Stock', click: () => mainWindow?.webContents.send('navigate', '/inventory') },
+        { label: 'Stock Transfer', click: () => mainWindow?.webContents.send('navigate', '/transfers') }
       ]
     },
     {
       label: 'Purchases',
       submenu: [
         { label: 'Purchase Orders', click: () => mainWindow?.webContents.send('navigate', '/purchases') },
-        { label: 'Suppliers', click: () => mainWindow?.webContents.send('navigate', '/suppliers') },
-        { label: 'Purchase Returns', click: () => mainWindow?.webContents.send('navigate', '/purchase-returns') }
+        { label: 'Suppliers', click: () => mainWindow?.webContents.send('navigate', '/suppliers') }
       ]
     },
     {
       label: 'People',
       submenu: [
         { label: 'Customers', click: () => mainWindow?.webContents.send('navigate', '/customers') },
-        { label: 'Employees', click: () => mainWindow?.webContents.send('navigate', '/employees') },
-        { label: 'Suppliers', click: () => mainWindow?.webContents.send('navigate', '/suppliers') }
+        { label: 'Employees', click: () => mainWindow?.webContents.send('navigate', '/employees') }
       ]
     },
     {
       label: 'Finance',
       submenu: [
         { label: 'Accounts', click: () => mainWindow?.webContents.send('navigate', '/accounts') },
-        { label: 'Transactions', click: () => mainWindow?.webContents.send('navigate', '/transactions') },
         { label: 'Expenses', click: () => mainWindow?.webContents.send('navigate', '/expenses') },
-        { label: 'Reports', submenu: [
-          { label: 'Profit & Loss', click: () => mainWindow?.webContents.send('navigate', '/reports/profit-loss') },
-          { label: 'Trial Balance', click: () => mainWindow?.webContents.send('navigate', '/reports/trial-balance') },
-          { label: 'Cash Flow', click: () => mainWindow?.webContents.send('navigate', '/reports/cash-flow') }
-        ]}
+        { label: 'Reports', click: () => mainWindow?.webContents.send('navigate', '/reports') }
       ]
     },
     {
       label: 'Help',
       submenu: [
-        { label: 'Documentation', click: () => shell.openExternal('https://docs.enterprise-pos.com') },
-        { label: 'Check for Updates', click: () => mainWindow?.webContents.send('menu-action', 'check-updates') },
+        { label: 'Documentation', click: () => mainWindow?.webContents.send('navigate', '/settings') },
         { type: 'separator' },
         { label: 'About Enterprise POS', click: () => mainWindow?.webContents.send('menu-action', 'about') }
       ]
