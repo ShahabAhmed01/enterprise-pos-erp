@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Package, Loader2, BarChart3, ShoppingBag, Users, Building2, Settings } from 'lucide-react';
 
-export function PAGE_NAME({ user, showToast }) {
+export function Notifications({ user, showToast }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -52,4 +52,4 @@ export function PAGE_NAME({ user, showToast }) {
     </motion.div>
   );
 }
-export default PAGE_NAME;
+export default Notifications;

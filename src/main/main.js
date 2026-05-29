@@ -268,17 +268,13 @@ app.whenReady().then(async () => {
     await initDatabase();
     log.info('Database initialized successfully');
     
-    // Setup IPC handlers
-    setupIpcHandlers(ipcMain, store, mainWindow);
-    log.info('IPC handlers setup complete');
-    
-    // Create splash window
+    // Create windows
     createSplashWindow();
-    
-    // Create main window after a short delay
-    setTimeout(() => {
-      createMainWindow();
-    }, 1500);
+    const win = createMainWindow();
+
+    // Setup IPC handlers with window reference
+    setupIpcHandlers(ipcMain, store, win);
+    log.info('IPC handlers setup complete');
     
   } catch (error) {
     log.error('Initialization error:', error);

@@ -2,21 +2,21 @@
   "name": "enterprise-pos-erp",
   "version": "1.0.0",
   "description": "Enterprise-Grade POS & ERP Business Management Application",
-  "main": "src/main/main.js",
+  "main": "dist-vite/main/main.js",
   "author": "Enterprise Solutions",
   "license": "Commercial",
   "scripts": {
-    "dev": "concurrently \"npm run dev:renderer\" \"npm run dev:main\"",
-    "dev:renderer": "vite",
-    "dev:main": "electron .",
+    "dev": "vite",
+    "dev:main": "vite build --config vite.config.js && electron .",
     "build": "vite build && electron-builder",
     "build:vite": "vite build",
     "build:electron": "electron-builder --win --publish never",
-    "preview": "vite preview",
-    "electron:dev": "concurrently \"cross-env BROWSER=none npm run dev:renderer\" \"wait-on http://localhost:5173 && electron .\""
+    "preview": "vite preview"
   },
   "dependencies": {
+    "@electron/rebuild": "^4.0.4",
     "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^12.10.0",
     "chart.js": "^4.4.1",
     "date-fns": "^3.3.1",
     "electron-log": "^5.1.1",
@@ -48,12 +48,28 @@
     "appId": "com.enterprise.pos",
     "productName": "Enterprise POS ERP",
     "directories": {
-      "output": "dist"
+      "output": "release"
     },
     "files": [
       "src/main/**/*",
       "src/preload/**/*",
-      "dist-vite/**/*"
+      "dist-vite/**/*",
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/bindings/**/*",
+      "node_modules/file-uri-to-path/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/better-sqlite3/build/Release",
+        "to": "better-sqlite3",
+        "filter": [
+          "*.node"
+        ]
+      }
+    ],
+    "asar": false,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*"
     ],
     "win": {
       "target": [
@@ -63,7 +79,8 @@
             "x64"
           ]
         }
-      ]
+      ],
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -72,5 +89,6 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Enterprise POS ERP"
     }
-  }
+  },
+  "type": "module"
 }

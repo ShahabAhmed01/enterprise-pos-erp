@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, ShoppingCart, Plus, Minus, Trash2, User, CreditCard, Banknote,
-  QrCode, Percent, Gift, Clock, X, Print, Loader2, Check, AlertCircle,
+  QrCode, Percent, Gift, Clock, X, Printer, Loader2, Check, AlertCircle,
   RefreshCw, History, Pause, ArrowLeft, ArrowRight, Trash, Edit2
 } from 'lucide-react';
 import { format } from 'date-fns';

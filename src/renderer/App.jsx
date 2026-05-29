@@ -6,7 +6,6 @@ import Dashboard from './pages/Dashboard';
 import POS from './pages/POS';
 import Products from './pages/Products';
 import Customers from './pages/Customers';
-import Suppliers from './pages/Suppliers';
 import Inventory from './pages/Inventory';
 import Purchases from './pages/Purchases';
 import Expenses from './pages/Expenses';
@@ -14,9 +13,11 @@ import Accounts from './pages/Accounts';
 import Employees from './pages/Employees';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import { Suppliers, Categories, Brands, Transfers, Returns, Notifications, ActivityLogs } from './pages/MorePages';
 import Sidebar from './components/Sidebar';
 import TopBar from './components/TopBar';
 import Toast from './components/Toast';
+import Sales from './pages/Sales';
 
 export const AppContext = createContext();
 
