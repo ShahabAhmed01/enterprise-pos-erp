@@ -117,6 +117,7 @@ function createMainWindow() {
   createSystemTray();
 
   log.info('Main window created successfully');
+  return mainWindow;
 }
 
 function createApplicationMenu() {

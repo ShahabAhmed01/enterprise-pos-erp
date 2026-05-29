@@ -103,12 +103,12 @@ npm run dev:main
 ### Default Login Credentials
 
 | Role | Username / Email | Password |
-|------|----------|----------|
+|------|------------------|----------|
 | **Super Admin** | admin@enterprise-pos.com | admin123 |
-| Manager | manager@enterprise-pos.com | manager123 |
-| Cashier | cashier@enterprise-pos.com | cashier123 |
+| Manager | manager@enterprise-pos.com | admin123 |
+| Cashier | cashier@enterprise-pos.com | admin123 |
 
-> **Note:** In demo/browser mode (without Electron), the app auto-logs in with admin credentials.
+> **Note:** To start the full Electron app locally, use `npm run dev:main` after `npm install`.
 
 ---
 

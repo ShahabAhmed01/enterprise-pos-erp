@@ -120,7 +120,7 @@ function setupIpcHandlers(ipcMain, store, mainWindow) {
   });
 
   // ==================== PRODUCTS ====================
-  ipcMain.handle('products:get-all', async (event, { page, limit, search, category, brand, status }) => {
+  ipcMain.handle('products:get-all', async (event, { page = 1, limit = 20, search, category, brand, status } = {}) => {
     try {
       const db = getDatabase();
       const offset = (page - 1) * limit;
@@ -171,13 +171,14 @@ function setupIpcHandlers(ipcMain, store, mainWindow) {
   });
 
   // ==================== SALES / POS ====================
-  ipcMain.handle('sales:create', async (event, saleData) => {
+  ipcMain.handle('sales:create', async (event, saleData = {}) => {
     try {
       const db = getDatabase(); const saleId = uuidv4(); const reference = `INV${Date.now()}`;
-      db.prepare(`INSERT INTO sales (id, reference, customer_id, user_id, warehouse_id, branch_id, status, sub_total, total_discount, total_tax, shipping_cost, grand_total, paid_amount, due_amount, payment_method, coupon_discount, loyalty_points_earned, notes, sale_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(saleId, reference, saleData.customer_id, saleData.user_id, saleData.warehouse_id, saleData.branch_id, 'completed', saleData.sub_total, saleData.total_discount || 0, saleData.total_tax, saleData.shipping_cost || 0, saleData.grand_total, saleData.paid_amount || saleData.grand_total, saleData.due_amount || 0, saleData.payment_method || 'cash', saleData.coupon_discount || 0, saleData.loyalty_points_earned || 0, saleData.notes, saleData.sale_date || new Date().toISOString());
+      const items = Array.isArray(saleData.items) ? saleData.items : [];
+      db.prepare(`INSERT INTO sales (id, reference, customer_id, user_id, warehouse_id, branch_id, status, sub_total, total_discount, total_tax, shipping_cost, grand_total, paid_amount, due_amount, payment_method, coupon_discount, loyalty_points_earned, notes, sale_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(saleId, reference, saleData.customer_id, saleData.user_id, saleData.warehouse_id, saleData.branch_id, 'completed', saleData.sub_total, saleData.total_discount || 0, saleData.total_tax || 0, saleData.shipping_cost || 0, saleData.grand_total, saleData.paid_amount || saleData.grand_total, saleData.due_amount || 0, saleData.payment_method || 'cash', saleData.coupon_discount || 0, saleData.loyalty_points_earned || 0, saleData.notes, saleData.sale_date || new Date().toISOString());
 
       const insertItem = db.prepare(`INSERT INTO sale_items (id, sale_id, product_id, variant_id, warehouse_id, quantity, unit_price, discount_amount, discount_percentage, tax_rate, tax_amount, subtotal, product_name, product_sku) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
-      for (const item of saleData.items) {
+      for (const item of items) {
         insertItem.run(uuidv4(), saleId, item.product_id, item.variant_id, saleData.warehouse_id, item.quantity, item.unit_price, item.discount_amount || 0, item.discount_percentage || 0, item.tax_rate || 0, item.tax_amount || 0, item.subtotal, item.product_name, item.product_sku);
         if (item.product_id) {
           db.prepare(`UPDATE stock SET quantity = quantity - ?, updated_at = CURRENT_TIMESTAMP WHERE product_id = ? AND warehouse_id = ?`).run(item.quantity, item.product_id, saleData.warehouse_id);
@@ -196,7 +197,7 @@ function setupIpcHandlers(ipcMain, store, mainWindow) {
     } catch (error) { return { success: false, message: error.message }; }
   });
 
-  ipcMain.handle('sales:get-all', async (event, { page, limit, dateFrom, dateTo, status, customer, user }) => {
+  ipcMain.handle('sales:get-all', async (event, { page = 1, limit = 20, dateFrom, dateTo, status, customer, user } = {}) => {
     try {
       const db = getDatabase(); const offset = (page - 1) * limit;
       let whereClause = 'WHERE 1=1'; const params = [];
@@ -223,7 +224,7 @@ function setupIpcHandlers(ipcMain, store, mainWindow) {
   });
 
   // ==================== CUSTOMERS ====================
-  ipcMain.handle('customers:get-all', async (event, { page, limit, search }) => {
+  ipcMain.handle('customers:get-all', async (event, { page = 1, limit = 20, search } = {}) => {
     try {
       const db = getDatabase(); const offset = (page - 1) * limit;
       let whereClause = 'WHERE 1=1'; const params = [];
@@ -254,7 +255,7 @@ function setupIpcHandlers(ipcMain, store, mainWindow) {
   });
 
   // ==================== SUPPLIERS ====================
-  ipcMain.handle('suppliers:get-all', async (event, { page, limit, search }) => {
+  ipcMain.handle('suppliers:get-all', async (event, { page = 1, limit = 20, search } = {}) => {
     try {
       const db = getDatabase(); const offset = (page - 1) * limit;
       let whereClause = 'WHERE 1=1'; const params = [];
@@ -290,7 +291,7 @@ function setupIpcHandlers(ipcMain, store, mainWindow) {
   });
 
   // ==================== INVENTORY / STOCK ====================
-  ipcMain.handle('inventory:get-stock', async (event, { page, limit, warehouse, category, search }) => {
+  ipcMain.handle('inventory:get-stock', async (event, { page = 1, limit = 20, warehouse, category, search } = {}) => {
     try {
       const db = getDatabase(); const offset = (page - 1) * limit;
       let whereClause = 'WHERE 1=1'; const params = [];
@@ -361,7 +362,7 @@ function setupIpcHandlers(ipcMain, store, mainWindow) {
   });
 
   // ==================== EMPLOYEES ====================
-  ipcMain.handle('employees:get-all', async (event, { page, limit, search }) => {
+  ipcMain.handle('employees:get-all', async (event, { page = 1, limit = 20, search } = {}) => {
     try {
       const db = getDatabase(); const offset = (page - 1) * limit;
       let whereClause = 'WHERE 1=1'; const params = [];
@@ -509,7 +510,7 @@ function setupIpcHandlers(ipcMain, store, mainWindow) {
   });
 
   // ==================== ACTIVITY LOGS ====================
-  ipcMain.handle('logs:get-activity', async (event, { page, limit, userId, action }) => {
+  ipcMain.handle('logs:get-activity', async (event, { page = 1, limit = 20, userId, action } = {}) => {
     try {
       const db = getDatabase(); const offset = (page - 1) * limit;
       let whereClause = 'WHERE 1=1'; const params = [];

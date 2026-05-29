@@ -60,7 +60,11 @@ function App() {
   };
 
   const handleNavigate = (path) => {
-    setCurrentPage(path);
+    if (!path || path === '/') {
+      setCurrentPage('dashboard');
+      return;
+    }
+    setCurrentPage(path.startsWith('/') ? path.slice(1) : path);
   };
 
   const handleLogin = (userData) => {

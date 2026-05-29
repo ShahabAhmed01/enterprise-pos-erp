@@ -830,6 +830,16 @@ async function seedInitialData() {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(uuidv4(), 'admin@enterprise-pos.com', hashedPassword, 'System', 'Administrator', '+1234567890', adminRoleId, '1234', 1);
 
+  db.prepare(`
+    INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(uuidv4(), 'manager@enterprise-pos.com', hashedPassword, 'Branch', 'Manager', '+1234567891', roles[2].id, '2345', 1);
+
+  db.prepare(`
+    INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(uuidv4(), 'cashier@enterprise-pos.com', hashedPassword, 'POS', 'Cashier', '+1234567892', roles[3].id, '3456', 1);
+
   // Create default branch
   const mainBranchId = uuidv4();
   db.prepare(`
@@ -935,39 +945,7 @@ async function seedInitialData() {
       10.00,
       1
     );
-    
-    // Add stock
-    const stockQty = Math.floor(Math.random() * 100) + 20;
-    insertStock.run(uuidv4(), productId, mainWarehouseId, stockQty);
-  });
-  const insertProduct = db.prepare(`
-    INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, tax_rate, is_track_stock)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
 
-  const insertStock = db.prepare(`
-    INSERT INTO stock (id, product_id, warehouse_id, quantity)
-    VALUES (?, ?, ?, ?)
-  `);
-
-  productData.forEach(product => {
-    const productId = uuidv4();
-    insertProduct.run(
-      productId,
-      product.sku,
-      product.barcode,
-      product.name,
-      `High quality ${product.name.toLowerCase()}`,
-      product.category_id,
-      product.brand_id,
-      unitPcsId,
-      product.cost,
-      product.price,
-      10.00,
-      1
-    );
-    
-    // Add stock
     const stockQty = Math.floor(Math.random() * 100) + 20;
     insertStock.run(uuidv4(), productId, mainWarehouseId, stockQty);
   });
@@ -984,40 +962,7 @@ async function seedInitialData() {
     VALUES (?, ?, ?, ?, ?, ?)
   `).run(uuidv4(), 'SUPP001', 'Global Distributors Inc.', 'orders@globaldist.com', '+1987654321', 1);
 
-  const insertProduct = db.prepare(`
-    INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, tax_rate, is_track_stock)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
-  const insertStock = db.prepare(`
-    INSERT INTO stock (id, product_id, warehouse_id, quantity)
-    VALUES (?, ?, ?, ?)
-  `);
-
-  productData.forEach(product => {
-    const productId = uuidv4();
-    const unitId = units[0].id;
-    insertProduct.run(
-      productId,
-      product.sku,
-      product.barcode,
-      product.name,
-      `High quality ${product.name.toLowerCase()}`,
-      categories[product.category].id,
-      product.brand !== null ? brands[product.brand].id : null,
-      unitId,
-      product.cost,
-      product.price,
-      10.00,
-      1
-    );
-    
-    // Add stock
-    const stockQty = Math.floor(Math.random() * 100) + 20;
-    insertStock.run(uuidv4(), productId, mainWarehouseId, stockQty);
-  });
-
-  // Create demo customer
+  // Create default accounts
   db.prepare(`
     INSERT INTO customers (id, code, first_name, last_name, email, phone, customer_type, membership_level, is_active)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
