@@ -1,9 +1,9 @@
-const { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage, dialog, shell } = require('electron');
-const path = require('path');
-const log = require('electron-log');
-const Store = require('electron-store');
-const { initDatabase, getDatabase } = require('./database');
-const { setupIpcHandlers } = require('./ipc-handlers');
+import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage, dialog, shell } from 'electron';
+import path from 'path';
+import log from 'electron-log';
+import Store from 'electron-store';
+import { initDatabase, getDatabase } from './database.js';
+import { setupIpcHandlers } from './ipc-handlers.js';
 
 // Configure logging
 log.transports.file.level = 'info';
@@ -292,4 +292,4 @@ app.on('before-quit', () => {
   }
 });
 
-module.exports = { mainWindow, store };
+export { mainWindow, store };

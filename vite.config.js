@@ -16,8 +16,9 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-vite/main',
+            minify: false,
             rollupOptions: {
-              external: ['electron', 'better-sqlite3', 'electron-log', 'electron-store', 'bcryptjs', 'uuid']
+              external: ['electron']
             }
           }
         }
@@ -30,6 +31,7 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-vite/preload',
+            minify: false,
             rollupOptions: {
               external: ['electron']
             }
@@ -43,9 +45,5 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src/renderer')
     }
-  },
-  build: {
-    outDir: 'dist-vite',
-    emptyOutDir: true
   }
 });

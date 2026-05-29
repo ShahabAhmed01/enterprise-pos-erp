@@ -1,11 +1,11 @@
-const { dialog, app, shell } = require('electron');
-const path = require('path');
-const fs = require('fs');
-const log = require('electron-log');
-const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
-const { getDatabase } = require('./database');
-const { format, parseISO, startOfDay, endOfDay, startOfMonth, endOfMonth, subDays } = require('date-fns');
+import { dialog, app, shell } from 'electron';
+import path from 'path';
+import fs from 'fs';
+import log from 'electron-log';
+import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
+import { getDatabase } from './database.js';
+import { format, parseISO, startOfDay, endOfDay, startOfMonth, endOfMonth, subDays } from 'date-fns';
 
 let mainWindowRef = null;
 
@@ -530,4 +530,4 @@ function logActivity(db, userId, action, entityType, entityId, oldValues = null,
   } catch (error) { log.warn('Failed to log activity:', error.message); }
 }
 
-module.exports = { setupIpcHandlers };
+export { setupIpcHandlers };

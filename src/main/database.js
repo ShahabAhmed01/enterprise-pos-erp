@@ -1,9 +1,9 @@
-const Database = require('better-sqlite3');
-const path = require('path');
-const { app } = require('electron');
-const log = require('electron-log');
-const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+import Database from 'better-sqlite3';
+import path from 'path';
+import { app } from 'electron';
+import log from 'electron-log';
+import bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 
 let db = null;
 
@@ -1034,4 +1034,4 @@ async function seedInitialData() {
   log.info('Initial data seeded successfully');
 }
 
-module.exports = { initDatabase, getDatabase };
+export { initDatabase, getDatabase };
