@@ -235,7 +235,7 @@ function createTables() {
       warehouse_id TEXT NOT NULL,
       quantity INTEGER DEFAULT 0,
       reserved_quantity INTEGER DEFAULT 0,
-      available_quantity INTEGER GENERATED ALWAYS AS (quantity - reserved_quantity) STORED,
+      available_quantity INTEGER DEFAULT 0,
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(product_id, variant_id, warehouse_id),
       FOREIGN KEY (product_id) REFERENCES products(id),
