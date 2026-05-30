@@ -910,8 +910,7 @@ async function seedInitialData() {
     { id: uuidv4(), name: 'Delivery Staff', description: 'Delivery management access', permissions: JSON.stringify(['deliveries', 'orders']), is_system: 1 }
   ];
 
-  const insertRole = db.prepare('INSERT INTO roles (id, name, description, permissions, is_system) VALUES (?, ?, ?, ?, ?)');
-  roles.forEach(role => insertRole.run(role.id, role.name, role.description, role.permissions, role.is_system));
+  roles.forEach(role => db.prepare('INSERT INTO roles (id, name, description, permissions, is_system) VALUES (?, ?, ?, ?, ?)').run(role.id, role.name, role.description, role.permissions, role.is_system));
 
   // Create default admin user
   const adminRoleId = roles[0].id;
@@ -957,8 +956,7 @@ async function seedInitialData() {
     { id: uuidv4(), name: 'Pack', short_name: 'pack', is_integer: 1 }
   ];
 
-  const insertUnit = db.prepare('INSERT INTO units (id, name, short_name, is_integer) VALUES (?, ?, ?, ?)');
-  units.forEach(unit => insertUnit.run(unit.id, unit.name, unit.short_name, unit.is_integer));
+  units.forEach(unit => db.prepare('INSERT INTO units (id, name, short_name, is_integer) VALUES (?, ?, ?, ?)').run(unit.id, unit.name, unit.short_name, unit.is_integer));
 
   // Create categories
   const categories = [
@@ -972,8 +970,7 @@ async function seedInitialData() {
     { id: uuidv4(), name: 'Toys & Games', description: 'Toys and games for all ages' }
   ];
 
-  const insertCategory = db.prepare('INSERT INTO categories (id, name, description) VALUES (?, ?, ?)');
-  categories.forEach(cat => insertCategory.run(cat.id, cat.name, cat.description));
+  categories.forEach(cat => db.prepare('INSERT INTO categories (id, name, description) VALUES (?, ?, ?)').run(cat.id, cat.name, cat.description));
 
   // Create brands
   const brands = [
@@ -987,8 +984,7 @@ async function seedInitialData() {
     { id: uuidv4(), name: 'Nestle', description: 'Nestlé S.A.' }
   ];
 
-  const insertBrand = db.prepare('INSERT INTO brands (id, name, description) VALUES (?, ?, ?)');
-  brands.forEach(brand => insertBrand.run(brand.id, brand.name, brand.description));
+  brands.forEach(brand => db.prepare('INSERT INTO brands (id, name, description) VALUES (?, ?, ?)').run(brand.id, brand.name, brand.description));
 
   // Create demo products (using category/brand IDs directly to avoid index misalignment)
   const categoryIds = categories.map(c => c.id);
@@ -1010,19 +1006,12 @@ async function seedInitialData() {
     { sku: 'BOOK001', barcode: '789012345001', name: 'Business Management Guide', category_id: categoryIds[6], brand_id: null, cost: 15.00, price: 34.99 },
     { sku: 'TOYS001', barcode: '890123456001', name: 'Building Blocks Set 500pc', category_id: categoryIds[7], brand_id: null, cost: 25.00, price: 59.99 }
   ];
-  const insertProduct = db.prepare(`
-    INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, tax_rate, is_track_stock)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
-  const insertStock = db.prepare(`
-    INSERT INTO stock (id, product_id, warehouse_id, quantity)
-    VALUES (?, ?, ?, ?)
-  `);
-
   productData.forEach(product => {
     const productId = uuidv4();
-    insertProduct.run(
+    db.prepare(`
+      INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, tax_rate, is_track_stock)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
       productId,
       product.sku,
       product.barcode,
@@ -1038,7 +1027,10 @@ async function seedInitialData() {
     );
 
     const stockQty = Math.floor(Math.random() * 100) + 20;
-    insertStock.run(uuidv4(), productId, mainWarehouseId, stockQty);
+    db.prepare(`
+      INSERT INTO stock (id, product_id, warehouse_id, quantity)
+      VALUES (?, ?, ?, ?)
+    `).run(uuidv4(), productId, mainWarehouseId, stockQty);
   });
 
   // Create demo customer

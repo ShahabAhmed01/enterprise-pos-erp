@@ -8,6 +8,8 @@ import { setupIpcHandlers } from './ipc-handlers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+globalThis.__filename = __filename;
+globalThis.__dirname = __dirname;
 
 // Configure logging
 log.transports.file.level = 'info';

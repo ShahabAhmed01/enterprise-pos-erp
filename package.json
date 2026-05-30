@@ -8,7 +8,7 @@
   "license": "Commercial",
   "scripts": {
     "dev": "vite",
-    "dev:main": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "dev:main": "vite",
     "build": "npm run build:vite && electron-builder",
     "build:vite": "vite build",
     "build:electron": "electron-builder --win --publish never",
@@ -38,7 +38,7 @@
     "autoprefixer": "^10.4.17",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
-    "electron": "28.2.2",
+    "electron": "^28.2.2",
     "electron-builder": "^24.9.1",
     "jsdom": "^22.1.0",
     "postcss": "^8.4.35",

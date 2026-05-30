@@ -93,14 +93,8 @@ cd enterprise-pos-erp
 # Install dependencies
 npm install
 
-# Start Vite development server (frontend only)
-npm run dev
-
-# Start full Electron development (backend + frontend)
+# Start the application locally
 npm run dev:main
-
-# Run the React test suite
-npm test
 ```
 
 ### Default Login Credentials
@@ -110,8 +104,6 @@ npm test
 | **Super Admin** | admin@enterprise-pos.com | admin123 |
 | Manager | manager@enterprise-pos.com | admin123 |
 | Cashier | cashier@enterprise-pos.com | admin123 |
-
-> **Note:** To start the full Electron app locally, use `npm run dev:main` after `npm install`.
 
 ---
 
