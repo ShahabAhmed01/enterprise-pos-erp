@@ -1,33 +1,124 @@
-import Database from 'better-sqlite3';
+import initSqlJs from 'sql.js';
+import fs from 'fs';
 import path from 'path';
 import { app } from 'electron';
 import log from 'electron-log';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let db = null;
+let rawDb = null;
+let dbPath = null;
+let isDirty = false;
 
 function getDatabase() {
   return db;
 }
 
+function saveDatabase() {
+  if (!rawDb || !isDirty || !dbPath) return;
+  const data = rawDb.export();
+  fs.writeFileSync(dbPath, Buffer.from(data));
+  isDirty = false;
+  log.info(`Database saved to ${dbPath}`);
+}
+
+function createStatement(sql) {
+  const statement = rawDb.prepare(sql);
+
+  const getRow = () => {
+    const values = statement.get ? statement.get() : [];
+    const columns = statement.getColumnNames ? statement.getColumnNames() : [];
+    const row = {};
+
+    columns.forEach((column, index) => {
+      row[column] = values[index];
+    });
+
+    return row;
+  };
+
+  return {
+    run(...params) {
+      statement.bind(params);
+      const result = statement.step();
+      statement.free();
+      isDirty = true;
+      saveDatabase();
+      return result;
+    },
+    get(...params) {
+      statement.bind(params);
+      const hasRow = statement.step();
+      const row = hasRow ? getRow() : undefined;
+      statement.free();
+      return row;
+    },
+    all(...params) {
+      statement.bind(params);
+      const rows = [];
+      while (statement.step()) {
+        rows.push(getRow());
+      }
+      statement.free();
+      return rows;
+    }
+  };
+}
+
 async function initDatabase() {
   const userDataPath = app.getPath('userData');
-  const dbPath = path.join(userDataPath, 'enterprise_pos.db');
-  
+  dbPath = path.join(userDataPath, 'enterprise_pos.db');
   log.info(`Initializing database at: ${dbPath}`);
-  
-  db = new Database(dbPath, { verbose: null });
-  db.pragma('journal_mode = WAL');
-  db.pragma('foreign_keys = ON');
-  db.pragma('synchronous = NORMAL');
-  db.pragma('cache_size = -64000');
-  db.pragma('temp_store = MEMORY');
-  
+
+  const SQL = await initSqlJs({
+    locateFile: (filename) => path.join(__dirname, '../../node_modules/sql.js/dist', filename)
+  });
+
+  if (fs.existsSync(dbPath)) {
+    const fileBuffer = fs.readFileSync(dbPath);
+    rawDb = new SQL.Database(new Uint8Array(fileBuffer));
+  } else {
+    rawDb = new SQL.Database();
+  }
+
+  rawDb.exec('PRAGMA journal_mode = WAL;');
+  rawDb.exec('PRAGMA foreign_keys = ON;');
+  rawDb.exec('PRAGMA synchronous = NORMAL;');
+  rawDb.exec('PRAGMA cache_size = -64000;');
+  rawDb.exec('PRAGMA temp_store = MEMORY;');
+
+  db = {
+    prepare: createStatement,
+    exec(sql) {
+      const result = rawDb.exec(sql);
+      if (!sql.trim().toUpperCase().startsWith('SELECT')) {
+        isDirty = true;
+        saveDatabase();
+      }
+      return result;
+    },
+    pragma(sql) {
+      const statement = sql.trim().toUpperCase().startsWith('PRAGMA') ? sql : `PRAGMA ${sql}`;
+      rawDb.exec(statement);
+    },
+    close() {
+      saveDatabase();
+      rawDb.close();
+      rawDb = null;
+      db = null;
+    }
+  };
+
   createTables();
   createIndexes();
-  seedInitialData();
-  
+  await seedInitialData();
+  saveDatabase();
+
   log.info('Database tables created and seeded successfully');
   return db;
 }
