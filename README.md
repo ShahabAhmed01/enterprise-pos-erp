@@ -79,7 +79,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Node.js 18+** (Required for development)
+- **Node.js v18 or v20** (Required. *Note: Node.js v24+ is currently incompatible and may cause native module build failures*)
 - **npm** or **yarn** (Node Package Manager)
 - **Git** (for version control)
 
@@ -104,6 +104,28 @@ npm run dev:main
 | **Super Admin** | admin@enterprise-pos.com | admin123 |
 | Manager | manager@enterprise-pos.com | admin123 |
 | Cashier | cashier@enterprise-pos.com | admin123 |
+
+---
+
+## 🔧 Troubleshooting Common Errors
+
+Here are some errors you might encounter during setup and their corresponding fixes:
+
+### 1. Application starts with Multiple Blank Windows
+- **Cause**: Background processes from previous crashed sessions are still running and conflicting over port `5173`.
+- **Fix**: Open Task Manager (Windows) or Activity Monitor (Mac) and force quit all `node.exe` and `electron.exe` processes. Then restart the app cleanly.
+
+### 2. Native Compilation Errors (`node-gyp` / build tools) during `npm install`
+- **Cause**: You might be using an unsupported, overly new version of Node.js (like Node v24) which is incompatible with the Electron version.
+- **Fix**: Downgrade your Node.js to an LTS version (specifically **v20.x** or **v18.x**).
+
+### 3. Database Initialization Error: `Statement closed`
+- **Cause**: Occurs if the internal database seeder attempts to reuse a prepared SQL statement that has already been executed and freed from memory.
+- **Fix**: Update the database scripts to prepare a fresh statement (`db.prepare(...)`) inside any loops, rather than preparing it once outside the loop. (This has been patched in recent versions).
+
+### 4. Initialization Error: `Cannot set properties of undefined (setting 'exports')`
+- **Cause**: Occurs because Vite is aggressively bundling `sql.js` into an ES Module, stripping away its required CommonJS Node bindings (`module.exports`).
+- **Fix**: Open `vite.config.js` and explicitly add `'sql.js'` to the `rollupOptions.external` array to tell the bundler to skip it. (This has been patched in recent versions).
 
 ---
 
