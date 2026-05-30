@@ -120,14 +120,16 @@ npm test
 ### Windows Installation
 
 1. Build the application: `npm run build`
-2. Find the installer in `release/` folder
-3. Run the `.exe` installer
+2. Find the packaged output in the `release/` folder
+3. Run the `.exe` installer or use the `win-unpacked` app folder
 4. Follow the installation wizard
 5. Launch from Start Menu or Desktop shortcut
 
+> Note: Packaging uses `electron-builder` with Windows signing disabled by default. If `npm run build` fails due to Windows helper extraction or permission issues, run the command in an elevated PowerShell/Command Prompt or use `npm run build:vite` to validate the renderer build.
+
 ### Features
 - Native Windows experience with system tray
-- Offline-first operation with local SQLite database
+- Offline-first operation with local `sql.js` database
 - Auto backup system
 - System tray with quick actions
 - Full keyboard navigation
@@ -141,7 +143,7 @@ enterprise-pos-erp/
 ├── src/
 │   ├── main/                 # Electron main process
 │   │   ├── main.js           # Main entry point with window management
-│   │   ├── database.js       # SQLite database schema & seeding
+│   │   ├── database.js       # SQL.js database schema & seeding
 │   │   └── ipc-handlers.js   # IPC communication handlers (40+ handlers)
 │   ├── preload/
 │   │   └── preload.js        # Context bridge API
@@ -181,7 +183,7 @@ enterprise-pos-erp/
 | **Frontend** | React.js + Vite | ^18.2.0 / ^5.1.2 |
 | **Styling** | TailwindCSS | ^3.4.1 |
 | **Animations** | Framer Motion | ^11.0.5 |
-| **Database** | SQLite (better-sqlite3) | ^12.10.0 |
+| **Database** | SQL.js (pure JavaScript SQLite) | ^1.8.0 |
 | **Charts** | Chart.js + react-chartjs-2 | ^4.4.1 / ^5.2.0 |
 | **Icons** | Lucide React | ^0.344.0 |
 | **Password Hashing** | bcryptjs | ^2.4.3 |
