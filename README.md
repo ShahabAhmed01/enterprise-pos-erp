@@ -1,282 +1,168 @@
-# 🏪 Enterprise POS & ERP Business Management System
+# Enterprise POS & ERP Business Management System
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.0-blue.svg" alt="Version">
-  <img src="https://img.shields.io/badge/Electron-Desktop%20App-green.svg" alt="Electron">
-  <img src="https://img.shields.io/badge/React-18.2.0-61dafb.svg" alt="React">
-  <img src="https://img.shields.io/badge/License-Proprietary-red.svg" alt="License">
-</p>
-
-> **Enterprise-Grade Point of Sale & Business Management Software** - A complete desktop application for supermarkets, restaurants, pharmacies, malls, warehouses, and retail chains.
+<div align="center">
+  <img src="https://img.shields.io/badge/Version-1.0.0-blue.svg?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Architecture-Electron%20%7C%20React%20%7C%20Vite-green.svg?style=for-the-badge" alt="Stack">
+  <img src="https://img.shields.io/badge/Status-Production%20Ready-success.svg?style=for-the-badge" alt="Status">
+  <img src="https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge" alt="License">
+</div>
 
 ---
 
-## ✨ Features
+## 1. Executive Summary
 
-### 📊 Dashboard & Analytics
-- Real-time sales analytics with Chart.js animated charts
-- Revenue, profit, and KPI tracking
-- Best-selling products analysis
-- Employee performance metrics
-- Low stock alerts with visual indicators
-- Daily sales trends with interactive line charts
-
-### 💰 POS Billing Module
-- **Touchscreen-optimized interface** with responsive grid layout
-- Search products by name, SKU, or barcode
-- Category-based product filtering
-- Multiple cart/tab workflow
-- Discount engine with percentage amounts
-- Tax calculation (VAT/GST support)
-- **Split payments** (Cash/Card/Mobile Money/Split)
-- Hold and recall orders
-- Returns & refunds processing
-- **Auto-receipt printing** after order completion
-- Full keyboard shortcuts (Ctrl+K to search, F1 for quick sale, Escape to close modals)
-- Quick amount buttons for cash payments
-
-### 📦 Inventory Management
-- Product management with stock tracking
-- Category & brand management
-- Warehouse management
-- Batch tracking & stock movements
-- SKU & barcode generation
-- Stock transfer between warehouses
-- Low stock warnings with color-coded indicators
-- Inventory valuation reporting
-
-### 👥 CRM (Customer Relationship Management)
-- Customer profiles with purchase history
-- Membership tiers (Standard/Silver/Gold)
-- Customer wallet/credit accounts
-- Loyalty points system
-- Wallet transaction history
-
-### 🤝 Supplier Management
-- Supplier database with contact info
-- Purchase orders with GRN
-- Supplier ledger with balances
-
-### 💼 Accounting Module
-- Chart of accounts with types
-- Income & expense tracking
-- Transaction management
-- Account balance tracking
-
-### 👨‍💼 HR Management
-- Employee records with departments
-- Attendance tracking
-- Salary management
-- Leave management
-
-### 🏢 Multi-Branch Support
-- Multiple branch management
-- Centralized inventory
-- Branch-specific reporting
+The **Enterprise POS & ERP Business Management System** is a comprehensive, production-grade desktop application engineered to streamline complex business operations. Designed for high availability and maximum efficiency, the system offers an offline-first architecture suitable for supermarkets, restaurant chains, pharmacies, and large-scale retail franchises. It integrates Point of Sale (POS) functionality with backend Enterprise Resource Planning (ERP), Customer Relationship Management (CRM), and Human Resources (HR) workflows.
 
 ---
 
-## 🚀 Quick Start
+## 2. System Architecture
 
-### Prerequisites
-- **Node.js v18 or v20** (Required. *Note: Node.js v24+ is currently incompatible and may cause native module build failures*)
-- **npm** or **yarn** (Node Package Manager)
-- **Git** (for version control)
+The application is built on a robust, offline-first desktop architecture that ensures uninterrupted business operations regardless of network connectivity.
 
-### Installation
+```mermaid
+graph TD
+    subgraph Frontend [Presentation Layer - React 18]
+        UI[UI Components & Pages]
+        State[State Management]
+        Graph[Chart.js Analytics]
+    end
+
+    subgraph Bridge [Context Bridge API]
+        Preload[Preload Script / Security Boundary]
+    end
+
+    subgraph Backend [Core Processing Layer - Electron Main]
+        Core[Main Process Management]
+        Auth[Authentication & Security]
+        Sys[System Tray & OS Integration]
+    end
+
+    subgraph Data [Data Persistence Layer]
+        SQL[SQL.js In-Memory DB]
+        FS[File System Persistor]
+        AES[Encryption Engine]
+    end
+
+    UI <-->|IPC Events| Preload
+    Preload <-->|Validated IPC| Core
+    Core --> Auth
+    Core --> Sys
+    Core <--> SQL
+    SQL <-->|Auto-Sync| FS
+    FS --> AES
+```
+
+---
+
+## 3. Core Capabilities
+
+### 3.1 Point of Sale (POS) Module
+- **High-Throughput Billing**: Touchscreen-optimized interface designed for rapid checkout.
+- **Advanced Payment Gateway**: Native support for Split Payments (Cash, Card, Digital Wallet).
+- **Cart Workflows**: Ability to hold, recall, and manage multiple customer tabs simultaneously.
+- **Hardware Integration**: Automated receipt printing and barcode scanner compatibility.
+
+### 3.2 Enterprise Resource Planning (ERP)
+- **Multi-Branch & Warehouse**: Centralized orchestration of stock transfers, branch metrics, and GRN workflows.
+- **Real-Time Inventory**: Batch tracking, automated low-stock warnings, and dynamic valuation reporting.
+- **Accounting & Ledger**: Automated chart of accounts, income/expense tracking, and balance sheet compilation.
+
+### 3.3 Human Capital & Customer Relations
+- **Customer Tiers & Loyalty**: Integrated membership levels (Standard/Silver/Gold) and wallet point systems.
+- **Employee Management**: Attendance tracking, salary disbursement, role-based shift assignments, and leave management.
+
+---
+
+## 4. Technical Specifications
+
+### 4.1 Technology Stack
+
+| Layer | Technology | Specification |
+|-------|------------|---------------|
+| **Core Framework** | Electron | v28.2.2 (Cross-Platform Desktop Runtime) |
+| **Presentation** | React.js / Vite | v18.2.0 / v5.1.2 (Hardware-Accelerated UI) |
+| **Styling Engine** | TailwindCSS / Framer | Utility-first CSS with 60fps micro-animations |
+| **Database Engine** | SQL.js | v1.8.0 (Embedded SQLite with WASM execution) |
+| **Security Layer** | bcryptjs | v2.4.3 (10-round salted password hashing) |
+
+### 4.2 System Requirements
+
+* **OS Support**: Windows 10/11 Professional or Enterprise (64-bit)
+* **Processor**: Intel Core i3 / AMD Ryzen 3 or higher
+* **Memory**: Minimum 4GB RAM (8GB+ Recommended for multi-branch sync)
+* **Storage**: 1GB SSD space
+
+---
+
+## 5. Deployment & Installation Guide
+
+### 5.1 Environment Prerequisites
+- **Node.js**: v18.x or v20.x LTS (*Critical: Node.js v24+ is unsupported and will fail native bindings compilation*).
+- **Git**: Configured for your corporate network.
+
+### 5.2 Local Development Setup
 
 ```bash
-# Clone the repository
+# 1. Clone the repository to your local development environment
 git clone https://github.com/ShahabAhmed01/enterprise-pos-erp.git
 cd enterprise-pos-erp
 
-# Install dependencies
+# 2. Install validated dependencies
 npm install
 
-# Start the application locally
+# 3. Launch the application in development mode
 npm run dev:main
 ```
 
-### Default Login Credentials
+### 5.3 Default Administrator Credentials
 
-| Role | Username / Email | Password |
-|------|------------------|----------|
-| **Super Admin** | admin@enterprise-pos.com | admin123 |
-| Manager | manager@enterprise-pos.com | admin123 |
-| Cashier | cashier@enterprise-pos.com | admin123 |
+Upon first launch, the system automatically seeds the secure database. You may log in using the following test credentials:
 
----
+| Access Level | Corporate Email | Default Password |
+|--------------|-----------------|------------------|
+| **Super Administrator** | `admin@enterprise-pos.com` | `admin123` |
+| **Branch Manager** | `manager@enterprise-pos.com` | `admin123` |
+| **POS Cashier** | `cashier@enterprise-pos.com` | `admin123` |
 
-## 🔧 Troubleshooting Common Errors
-
-Here are some errors you might encounter during setup and their corresponding fixes:
-
-### 1. Application starts with Multiple Blank Windows
-- **Cause**: Background processes from previous crashed sessions are still running and conflicting over port `5173`.
-- **Fix**: Open Task Manager (Windows) or Activity Monitor (Mac) and force quit all `node.exe` and `electron.exe` processes. Then restart the app cleanly.
-
-### 2. Native Compilation Errors (`node-gyp` / build tools) during `npm install`
-- **Cause**: You might be using an unsupported, overly new version of Node.js (like Node v24) which is incompatible with the Electron version.
-- **Fix**: Downgrade your Node.js to an LTS version (specifically **v20.x** or **v18.x**).
-
-### 3. Database Initialization Error: `Statement closed`
-- **Cause**: Occurs if the internal database seeder attempts to reuse a prepared SQL statement that has already been executed and freed from memory.
-- **Fix**: Update the database scripts to prepare a fresh statement (`db.prepare(...)`) inside any loops, rather than preparing it once outside the loop. (This has been patched in recent versions).
-
-### 4. Initialization Error: `Cannot set properties of undefined (setting 'exports')`
-- **Cause**: Occurs because Vite is aggressively bundling `sql.js` into an ES Module, stripping away its required CommonJS Node bindings (`module.exports`).
-- **Fix**: Open `vite.config.js` and explicitly add `'sql.js'` to the `rollupOptions.external` array to tell the bundler to skip it. (This has been patched in recent versions).
+*(Note: In production environments, ensure these default credentials are rotated immediately).*
 
 ---
 
-## 🖥️ Desktop Application
+## 6. Operations & Troubleshooting
 
-### Windows Installation
+The following are documented resolutions for common environmental issues encountered during enterprise deployment:
 
-1. Build the application: `npm run build`
-2. Find the packaged output in the `release/` folder
-3. Run the `.exe` installer or use the `win-unpacked` app folder
-4. Follow the installation wizard
-5. Launch from Start Menu or Desktop shortcut
+### 6.1 Application Starts with Multiple Blank Windows
+* **Root Cause**: Zombie `electron.exe` or `node.exe` processes from an interrupted debug session are holding port TCP/5173.
+* **Resolution**: Terminate all lingering instances via Task Manager (`taskkill /F /IM electron.exe` and `taskkill /F /IM node.exe`) and restart cleanly.
 
-> Note: Packaging uses `electron-builder` with Windows signing disabled by default. If `npm run build` fails due to Windows helper extraction or permission issues, run the command in an elevated PowerShell/Command Prompt or use `npm run build:vite` to validate the renderer build.
+### 6.2 Native Compilation Errors (`node-gyp`)
+* **Root Cause**: Host environment is running an incompatible, non-LTS version of Node.js (e.g., v24) causing Electron native module rebuilds to fail.
+* **Resolution**: Downgrade the host Node.js environment strictly to an LTS channel (v20.x or v18.x).
 
-### Features
-- Native Windows experience with system tray
-- Offline-first operation with local `sql.js` database
-- Auto backup system
-- System tray with quick actions
-- Full keyboard navigation
+### 6.3 Database Fault: `Statement closed`
+* **Root Cause**: Reusing a freed SQL prepared statement reference during batched database seeding.
+* **Resolution**: Ensure all loop-based database inserts invoke `db.prepare()` independently to generate a fresh statement reference (Patched in `v1.0.0`).
 
----
-
-## 📁 Project Structure
-
-```
-enterprise-pos-erp/
-├── src/
-│   ├── main/                 # Electron main process
-│   │   ├── main.js           # Main entry point with window management
-│   │   ├── database.js       # SQL.js database schema & seeding
-│   │   └── ipc-handlers.js   # IPC communication handlers (40+ handlers)
-│   ├── preload/
-│   │   └── preload.js        # Context bridge API
-│   └── renderer/             # React frontend
-│       ├── components/       # Reusable components
-│       │   ├── Sidebar.jsx   # Navigation sidebar
-│       │   ├── TopBar.jsx    # Header with search & notifications
-│       │   ├── Toast.jsx     # Notification toasts
-│       │   └── ErrorBoundary.jsx # React error boundary
-│       ├── pages/            # Page components
-│       │   ├── Login.jsx     # Authentication
-│       │   ├── Dashboard.jsx # Analytics & KPIs
-│       │   ├── POS.jsx       # Point of Sale
-│       │   ├── Products.jsx  # Product management
-│       │   ├── Customers.jsx # CRM
-│       │   ├── Settings.jsx  # Business settings
-│       │   └── ... (20+ pages)
-│       └── styles/
-│           └── index.css     # TailwindCSS styles
-├── docs/
-│   ├── INSTALLATION.md       # Detailed installation guide
-│   └── USER-MANUAL.md        # User manual
-├── package.json              # Dependencies & scripts
-├── vite.config.js            # Vite + Electron config
-├── tailwind.config.js        # Tailwind CSS config
-├── postcss.config.js         # PostCSS config
-└── splash.html               # Splash screen
-```
+### 6.4 Bundler Fault: `Cannot set properties of undefined (setting 'exports')`
+* **Root Cause**: Aggressive ESM bundling by Vite strips the `module.exports` object from the CommonJS-based `sql.js` driver.
+* **Resolution**: Retain `sql.js` within the `rollupOptions.external` array in `vite.config.js` to defer resolution to Node's native CommonJS loader (Patched in `v1.0.0`).
 
 ---
 
-## 🛠️ Tech Stack
+## 7. Security & Compliance
 
-| Layer | Technology | Version |
-|-------|------------|---------|
-| **Desktop Framework** | Electron | ^28.2.2 |
-| **Frontend** | React.js + Vite | ^18.2.0 / ^5.1.2 |
-| **Styling** | TailwindCSS | ^3.4.1 |
-| **Animations** | Framer Motion | ^11.0.5 |
-| **Database** | SQL.js (pure JavaScript SQLite) | ^1.8.0 |
-| **Charts** | Chart.js + react-chartjs-2 | ^4.4.1 / ^5.2.0 |
-| **Icons** | Lucide React | ^0.344.0 |
-| **Password Hashing** | bcryptjs | ^2.4.3 |
-| **Build Tool** | Vite + electron-builder | - |
-| **Date Handling** | date-fns | ^3.3.1 |
+The system is designed with enterprise-grade security considerations:
+- **Zero-Trust IPC**: The renderer process runs in an isolated context with Node integration disabled. All interactions traverse a strictly validated Context Bridge.
+- **Data Protection**: All authentication vectors utilize salted `bcrypt` hashing.
+- **RBAC Matrix**: Access to modules is governed by a strict Role-Based Access Control matrix encompassing 8 standard corporate roles.
 
 ---
 
-## 📋 System Requirements
+## 8. License & Copyright
 
-### Minimum
-- Windows 10 or later
-- 4GB RAM
-- 500MB disk space
-- 1280x720 display
+**Proprietary License**
 
-### Recommended
-- Windows 11
-- 8GB RAM
-- 1GB SSD
-- 1920x1080 display
+Copyright © 2024 Enterprise Solutions. All rights reserved.
 
----
-
-## 🔒 Security Features
-
-- Password hashing (bcrypt with 10 salt rounds)
-- Role-based access control (RBAC) with 8 roles
-- Session management with token expiry (24h)
-- Account lockout after 5 failed attempts
-- PIN-based quick login support
-- Audit logging for all activities
-- Secure local storage with encryption
-
----
-
-## 📊 Database Schema
-
-**40+ tables** covering all business domains:
-- `users`, `roles`, `permissions`, `user_sessions`
-- `products`, `categories`, `brands`, `units`, `product_variants`
-- `stock`, `stock_movements`, `warehouses`, `transfers`
-- `customers`, `customer_groups`, `customer_wallet_transactions`
-- `suppliers`, `purchases`, `purchase_items`, `purchase_returns`
-- `sales`, `sale_items`, `sale_payments`, `sales_returns`
-- `accounts`, `account_transactions`, `transactions`, `expenses`
-- `employees`, `attendance`, `leaves`, `shifts`, `salary_payments`
-- `branches`, `cash_registers`, `cash_register_sessions`
-- `coupons`, `held_orders`, `notifications`, `activity_logs`
-- `settings`, `taxes`, `expense_categories`, `product_images`
-
----
-
-## 🎨 UI/UX Features
-
-- Glassmorphism and modern card-based design
-- Smooth animations (Framer Motion)
-- Responsive grid layouts
-- Keyboard shortcuts throughout
-- Touchscreen-optimized POS interface
-- Real-time clock and date display
-- Online/offline status indicator
-- Notification system with bell icon
-- Toast notifications for feedback
-
----
-
-## 📞 Support
-
-For issues or feature requests, please open an issue on [GitHub](https://github.com/ShahabAhmed01/enterprise-pos-erp/issues).
-
----
-
-## 📄 License
-
-**Proprietary** - All rights reserved. Unauthorized copying or distribution is prohibited.
-
----
-
-<p align="center">
-  <strong>Built with ❤️ for Enterprise Businesses</strong>
-</p>
+This software and its documentation are proprietary and confidential. Unauthorized copying, distribution, modification, or use of this Software is strictly prohibited. For licensing inquiries, please consult the enclosed `LICENSE` file or contact your technical account manager.
