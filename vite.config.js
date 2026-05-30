@@ -15,6 +15,7 @@ export default defineConfig({
         },
         vite: {
           build: {
+            target: 'node18',
             outDir: 'dist-vite/main',
             minify: false,
             rollupOptions: {
@@ -30,6 +31,7 @@ export default defineConfig({
         },
         vite: {
           build: {
+            target: 'node18',
             outDir: 'dist-vite/preload',
             minify: false,
             rollupOptions: {

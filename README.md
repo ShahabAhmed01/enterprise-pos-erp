@@ -98,6 +98,9 @@ npm run dev
 
 # Start full Electron development (backend + frontend)
 npm run dev:main
+
+# Run the React test suite
+npm test
 ```
 
 ### Default Login Credentials

@@ -960,19 +960,7 @@ async function seedInitialData() {
   db.prepare(`
     INSERT INTO suppliers (id, code, name, email, phone, is_active)
     VALUES (?, ?, ?, ?, ?, ?)
-  `).run(uuidv4(), 'SUPP001', 'Global Distributors Inc.', 'orders@globaldist.com', '+1987654321', 1);
-
-  // Create default accounts
-  db.prepare(`
-    INSERT INTO customers (id, code, first_name, last_name, email, phone, customer_type, membership_level, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(uuidv4(), 'CUST001', 'John', 'Doe', 'john.doe@email.com', '+1234567890', 'individual', 'gold', 1);
-
-  // Create demo supplier
-  db.prepare(`
-    INSERT INTO suppliers (id, code, name, email, phone, is_active)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(uuidv4(), 'SUPP001', 'Global Distributors Inc.', 'orders@globaldist.com', '+1987654321', 1);
+  `).run(uuidv4(), 'SUPP001', 'Global Distributors Inc.', 'orders@globaldist.com', '+1234567891', 1);
 
   // Create default accounts
   const accountData = [

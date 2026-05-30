@@ -1,9 +1,13 @@
 import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage, dialog, shell } from 'electron';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import log from 'electron-log';
 import Store from 'electron-store';
 import { initDatabase, getDatabase } from './database.js';
 import { setupIpcHandlers } from './ipc-handlers.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configure logging
 log.transports.file.level = 'info';
