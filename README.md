@@ -1,181 +1,231 @@
-# Enterprise POS & ERP Business Management System
+# Enterprise POS & ERP
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.2-blue.svg?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/Architecture-Electron%20%7C%20React%20%7C%20Vite-green.svg?style=for-the-badge" alt="Stack">
-  <img src="https://img.shields.io/badge/Status-Production%20Ready-success.svg?style=for-the-badge" alt="Status">
-  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"/>
+  <br/>
+  <img src="https://img.shields.io/badge/Version-1.0.2-4F46E5?style=for-the-badge" alt="Version"/>
+  <img src="https://img.shields.io/badge/Architecture-Electron_|_React_|_Vite-10B981?style=for-the-badge" alt="Architecture"/>
+  <img src="https://img.shields.io/badge/Database-SQLite_WASM-EF4444?style=for-the-badge" alt="Database"/>
+  <img src="https://img.shields.io/badge/License-MIT-3B82F6?style=for-the-badge" alt="License"/>
+  <br/><br/>
 </div>
 
----
-
-## 1. Executive Summary
-
-The **Enterprise POS & ERP Business Management System** is a comprehensive, production-grade desktop application engineered to streamline complex business operations. Designed for high availability and maximum efficiency, the system offers an offline-first architecture suitable for supermarkets, restaurant chains, pharmacies, and large-scale retail franchises. It integrates Point of Sale (POS) functionality with backend Enterprise Resource Planning (ERP), Customer Relationship Management (CRM), and Human Resources (HR) workflows.
+**Enterprise POS & ERP** is a production-grade, offline-first desktop application for retail and business management. It combines a lightning-fast Point of Sale with full Enterprise Resource Planning — inventory, accounting, CRM, HR, and reporting — all in a single, self-contained executable.
 
 ---
 
-## 2. System Architecture
+## Features
 
-The application is built on a robust, offline-first desktop architecture that ensures uninterrupted business operations regardless of network connectivity.
+### Point of Sale
+- **Touchscreen-Optimized Checkout** — designed for rapid, high-volume cashier workflows
+- **Split Payments** — cash, card, and mobile wallet in a single transaction
+- **Order Management** — hold, recall, and manage multiple customer tabs
+- **Hardware Ready** — barcode scanner and thermal receipt printer support
 
-```mermaid
-graph TD
-    subgraph Frontend [Presentation Layer - React 18]
-        UI[UI Components & Pages]
-        State[State Management]
-        Graph[Chart.js Analytics]
-    end
+### Inventory & Warehouse
+- **Multi-Warehouse** — transfer stock between locations with full audit trails
+- **Real-Time Stock** — live quantity tracking with low-stock alerts
+- **Stock Movements** — every inbound/outbound transaction logged automatically
 
-    subgraph Bridge [Context Bridge API]
-        Preload[Preload Script / Security Boundary]
-    end
+### Accounting & Finance
+- **Chart of Accounts** — assets, liabilities, revenue, and expense accounts
+- **Transaction Ledger** — all financial activity recorded with running balances
+- **Expense Tracking** — categorize and track business expenses by vendor
+- **Purchase Orders** — create, approve, and receive purchase orders
 
-    subgraph Backend [Core Processing Layer - Electron Main]
-        Core[Main Process Management]
-        Auth[Authentication & Security]
-        Sys[System Tray & OS Integration]
-    end
+### Customer Relationship Management
+- **Tiered Loyalty** — Gold / Silver / Standard membership with points
+- **Customer Profiles** — full purchase history, wallet balance, contact details
 
-    subgraph Data [Data Persistence Layer]
-        SQL[SQL.js In-Memory DB]
-        FS[File System Persistor]
-        AES[Encryption Engine]
-    end
+### Human Resources
+- **Employee Management** — designations, departments, salary, and attendance
+- **Role-Based Access** — Super Admin, Manager, Cashier roles with scoped permissions
 
-    UI <-->|IPC Events| Preload
-    Preload <-->|Validated IPC| Core
-    Core --> Auth
-    Core --> Sys
-    Core <--> SQL
-    SQL <-->|Auto-Sync| FS
-    FS --> AES
-```
+### Reporting & Analytics
+- **Dashboard KPIs** — daily sales, orders, profit, and low-stock widgets
+- **Sales Charts** — trend lines and profit breakdown doughnut
+- **Activity Logs** — full audit trail of system actions
 
 ---
 
-## 3. Core Capabilities
+## Quick Start
 
-### 3.1 Point of Sale (POS) Module
-- **High-Throughput Billing**: Touchscreen-optimized interface designed for rapid checkout.
-- **Advanced Payment Gateway**: Native support for Split Payments (Cash, Card, Digital Wallet).
-- **Cart Workflows**: Ability to hold, recall, and manage multiple customer tabs simultaneously.
-- **Hardware Integration**: Automated receipt printing and barcode scanner compatibility.
+### Download & Run
 
-### 3.2 Enterprise Resource Planning (ERP)
-- **Multi-Branch & Warehouse**: Centralized orchestration of stock transfers, branch metrics, and GRN workflows.
-- **Real-Time Inventory**: Batch tracking, automated low-stock warnings, and dynamic valuation reporting.
-- **Accounting & Ledger**: Automated chart of accounts, income/expense tracking, and balance sheet compilation.
+| Download | Description |
+|----------|-------------|
+| [Enterprise POS ERP Setup 1.0.0.exe](https://github.com/ShahabAhmed01/enterprise-pos-erp/releases) | Windows installer — adds Start Menu shortcut |
+| [Enterprise POS ERP 1.0.0.exe](https://github.com/ShahabAhmed01/enterprise-pos-erp/releases) | Portable — run directly, no installation |
 
-### 3.3 Human Capital & Customer Relations
-- **Customer Tiers & Loyalty**: Integrated membership levels (Standard/Silver/Gold) and wallet point systems.
-- **Employee Management**: Attendance tracking, salary disbursement, role-based shift assignments, and leave management.
-
-### 3.4 Demo & Sample Data
-The application ships with a rich, realistic demo dataset to evaluate all features immediately:
-
-| Entity | Records | Details |
-|--------|---------|---------|
-| **Products** | 10 | iPhone 15 Pro, Samsung Galaxy S24, Sony WH-1000XM5, MacBook Air M3, iPad Pro 12.9, Nike Air Max 270, Adidas Ultraboost 22, Pepsi/Coca-Cola 24 Packs, Nestle Water |
-| **Customers** | 7 | Pakistani profiles across Rawalpindi, Islamabad, Lahore, Karachi, Peshawar, Multan, Faisalabad — with Gold/Silver/Standard tiers & loyalty points |
-| **Suppliers** | 5 | TechWorld, Fashion Hub, FoodMart, Apple Pakistan, Nike Pakistan |
-| **Employees** | 6 | Branch Manager, Cashiers, Inventory Manager, Accountant, HR Officer — 4 active, 2 inactive |
-| **Sales** | 10 | 27 line-items across May 25–31, 2026 — mixed cash/card payments |
-| **Expenses** | 5 | Utilities, Salaries, Supplies, Marketing, Maintenance |
-| **Purchases** | 4 | Received, pending, and ordered statuses |
-| **Activity Logs** | 15 | Login, sale, inventory, expense events |
-| **Notifications** | 5 | Low stock alerts, system messages, achievement alerts |
-| **Account Transactions** | 4 | Opening balances, revenue, expense ledger entries |
-
----
-
-## 4. Technical Specifications
-
-### 4.1 Technology Stack
-
-| Layer | Technology | Specification |
-|-------|------------|---------------|
-| **Core Framework** | Electron | v28.2.2 (Cross-Platform Desktop Runtime) |
-| **Presentation** | React.js / Vite | v18.2.0 / v5.1.2 (Hardware-Accelerated UI) |
-| **Styling Engine** | TailwindCSS / Framer | Utility-first CSS with 60fps micro-animations |
-| **Database Engine** | SQL.js | v1.8.0 (Embedded SQLite with WASM execution) |
-| **Security Layer** | bcryptjs | v2.4.3 (10-round salted password hashing) |
-
-### 4.2 System Requirements
-
-* **OS Support**: Windows 10/11 (64-bit) • macOS 10.13+ (64-bit) • Major Linux distributions (Ubuntu 20.04+, Debian, Fedora)
-* **Processor**: Intel Core i3 (7th gen) / AMD Ryzen 3 (2000 series) or newer – supports multi‑core scaling
-* **Memory**: Minimum 4 GB RAM (8 GB recommended for heavy reporting)
-* **Storage**: Minimum 1 GB SSD (additional space for data archives)
-* **Enterprise‑Scale**: Designed for multi‑site deployments, clustering, and high‑availability configurations
-
----
-
-## 🚀 Quick Start
-
-### For End Users (Recommended)
-1. Go to [Releases](https://github.com/ShahabAhmed01/enterprise-pos-erp/releases)
-2. Download either:
-   - **Enterprise POS ERP Setup 1.0.0.exe** — installs to your PC
-   - **Enterprise POS ERP 1.0.0.exe** — portable, no installation needed
-3. Run the application. On first launch, a rich demo dataset (10 products, 7 customers, sample sales, expenses, purchases) is automatically seeded.
-4. Log in with default credentials:
+First launch auto-seeds a rich demo dataset. Use these credentials to sign in:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Super Admin | admin@enterprise-pos.com | admin123 |
-| Manager | manager@enterprise-pos.com | admin123 |
-| Cashier | cashier@enterprise-pos.com | admin123 |
+| **Super Admin** | admin@enterprise-pos.com | admin123 |
+| **Manager** | manager@enterprise-pos.com | admin123 |
+| **Cashier** | cashier@enterprise-pos.com | admin123 |
 
-### For Developers
-Prerequisites: Node.js v20, npm
+### Build from Source
+
+**Prerequisites:** Node.js v20+, npm
 
 ```bash
 git clone https://github.com/ShahabAhmed01/enterprise-pos-erp.git
 cd enterprise-pos-erp
 npm install
-npm run dev:main
+npm run build
+```
+
+The built installer and portable executable will be in the `release/` directory.
+
+### Development
+
+```bash
+npm run dev:electron
+```
+
+Launches Vite dev server + Electron with hot-reload.
+
+---
+
+## Role-Based Access Control
+
+| Module | Super Admin | Manager | Cashier |
+|--------|:-----------:|:-------:|:-------:|
+| Dashboard | ✓ | ✓ | — |
+| Point of Sale | ✓ | ✓ | ✓ |
+| Sales (view all) | ✓ | ✓ | — |
+| Sales (own only) | ✓ | — | ✓ |
+| Returns | ✓ | ✓ | Create only |
+| Products (CRUD) | ✓ | View/Edit | — |
+| Categories | ✓ | View | — |
+| Brands | ✓ | View | — |
+| Inventory | ✓ | View | — |
+| Transfers | ✓ | View/Create | — |
+| Customers | ✓ | ✓ | View/Add |
+| Suppliers | ✓ | View | — |
+| Employees | ✓ | View | — |
+| Accounts | ✓ | — | — |
+| Expenses | ✓ | View/Add | — |
+| Purchases | ✓ | View/Add | — |
+| Reports | ✓ | View | — |
+| Activity Logs | ✓ | — | — |
+| Settings | ✓ | — | — |
+| Notifications | ✓ | — | — |
+
+---
+
+## Demo Data
+
+The first launch seeds a comprehensive dataset so you can evaluate every feature immediately:
+
+| Entity | Count | Highlights |
+|--------|:-----:|------------|
+| **Products** | 21 | iPhone 15 Pro, Samsung Galaxy S24, Sony WH-1000XM5, MacBook Air M3, iPad Pro 12.9, Nike Air Max 270, Adidas Ultraboost 22, Coca-Cola, Pepsi, Nestle, and more across 4 categories |
+| **Customers** | 7 | Ahmed Khan (Rawalpindi), Sara Ali (Islamabad), Muhammad Usman (Lahore), Fatima Sheikh (Karachi), Hassan Raza (Peshawar), Ayesha Malik (Multan), Bilal Ahmed (Faisalabad) |
+| **Suppliers** | 5 | TechWorld Distributors, Fashion Hub Wholesale, FoodMart Distributors, Apple Pakistan, Nike Pakistan |
+| **Employees** | 6 | 4 active (Branch Manager, Cashier, Inventory Manager, Accountant) — 2 inactive |
+| **Sales** | 15 | 14-day history with multiple line-items per sale, mixed cash/card |
+| **Expenses** | 7 | Rent, Electricity, Internet, Salaries, Supplies, Marketing, Maintenance |
+| **Purchase Orders** | 5 | Received, pending, and ordered statuses across 5 suppliers |
+| **Stock Transfers** | 5 | Cross-warehouse transfers with completed, pending, and sent statuses |
+| **Returns** | 3 | Sales returns with approved status and item-level detail |
+| **Account Transactions** | 9 | Opening balances and ledger entries for all 9 accounts |
+| **Activity Logs** | 16 | Login events, sales, inventory changes, system actions |
+| **Notifications** | 5 | Low-stock alerts, system messages, and achievement alerts |
+
+**Low-stock alerts are triggered for:** Nike Air Max 270 (3 in stock / 10 minimum) and iPad Pro 12.9 (4 / 5).
+
+---
+
+## Technology Stack
+
+| Layer | Technology | Version |
+|-------|------------|:-------:|
+| Desktop Runtime | Electron | 28.2.2 |
+| User Interface | React | 18.2.0 |
+| Build Tool | Vite | 5.1.2 |
+| Styling | Tailwind CSS | 3 |
+| Animations | Framer Motion | 11 |
+| Database | SQL.js (SQLite via WASM) | 1.8 |
+| Charts | Chart.js | 4.4 |
+| Security | bcryptjs | 2.4 |
+| State | React Context | — |
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│              Presentation Layer                  │
+│         React 18  +  Tailwind  +  Framer         │
+│               (Isolated Renderer)                 │
+├─────────────────────────────────────────────────┤
+│              Context Bridge API                   │
+│         Preload Script  (Security Boundary)        │
+├─────────────────────────────────────────────────┤
+│              Core Processing Layer                │
+│        Electron Main Process  +  IPC Handlers     │
+├─────────────────────────────────────────────────┤
+│              Data Persistence Layer               │
+│    SQL.js (SQLite WASM)  →  File System  →  AES   │
+└─────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 5. Operations & Troubleshooting
+## System Requirements
 
-### 5.1 Application Starts with Multiple Blank Windows
-* **Root Cause**: Zombie `electron.exe` or `node.exe` processes from an interrupted debug session are holding port TCP/5173.
-* **Resolution**: Terminate all lingering instances via Task Manager (`taskkill /F /IM electron.exe` and `taskkill /F /IM node.exe`) and restart cleanly.
-
-### 5.2 Native Compilation Errors (`node-gyp`)
-* **Root Cause**: Host environment is running an incompatible, non-LTS version of Node.js (e.g., v24) causing Electron native module rebuilds to fail.
-* **Resolution**: Downgrade the host Node.js environment strictly to an LTS channel (v20.x or v18.x).
-
-### 5.3 Database Fault: `Statement closed`
-* **Root Cause**: Reusing a freed SQL prepared statement reference during batched database seeding.
-* **Resolution**: Ensure all loop-based database inserts invoke `db.prepare()` independently to generate a fresh statement reference (Patched in `v1.0.1`).
-
-### 5.4 Bundler Fault: `Cannot set properties of undefined (setting 'exports')`
-* **Root Cause**: Aggressive ESM bundling by Vite strips the `module.exports` object from the CommonJS-based `sql.js` driver.
-* **Resolution**: Retain `sql.js` within the `rollupOptions.external` array in `vite.config.js` to defer resolution to Node's native CommonJS loader (Patched in `v1.0.1`).
-
-### 5.5 Slow Application Startup (Blank Window Delay)
-* **Root Cause**: Database initialization (seeding + migrations) ran synchronously before `mainWindow.show()`, causing a visible black/blank window for 2–10 seconds on first launch.
-* **Resolution**: Set `show: true` in `BrowserWindow` config and moved `initDatabase()` to execute after window creation. The window now appears instantly while database setup completes in the background (Patched in `v1.0.2`).
+| Component | Minimum | Recommended |
+|-----------|:-------:|:-----------:|
+| OS | Windows 10 / macOS 10.13 / Ubuntu 20.04 | Windows 11 / macOS 14 |
+| Processor | Intel i3-7xxx / AMD Ryzen 3 | Intel i5 / AMD Ryzen 5 |
+| RAM | 4 GB | 8 GB |
+| Storage | 1 GB SSD | 2 GB SSD |
+| Screen | 1366 × 768 | 1920 × 1080 |
 
 ---
 
-## 6. Security & Compliance
+## Troubleshooting
 
-The system is designed with enterprise-grade security considerations:
-- **Zero-Trust IPC**: The renderer process runs in an isolated context with Node integration disabled. All interactions traverse a strictly validated Context Bridge.
-- **Data Protection**: All authentication vectors utilize salted `bcrypt` hashing.
-- **RBAC Matrix**: Access to modules is governed by a strict Role-Based Access Control matrix encompassing 8 standard corporate roles.
+### Blank Windows on Startup
+
+Zombie processes from a previous debug session hold port 5173.
+
+```bash
+taskkill /F /IM electron.exe && taskkill /F /IM node.exe
+```
+
+### Build Fails with Node.js Errors
+
+Use Node.js v20 LTS. Incompatible versions (v22+) may break native module compilation.
+
+### Database Error: `Statement closed`
+
+This was patched in v1.0.1. Ensure you are using the latest release.
+
+### Slow First Launch
+
+The first launch seeds the database (1–3 seconds). Subsequent launches are instant.
 
 ---
 
-## 7. License & Copyright
+## Releases
 
-**Open Source (MIT License)**
+All releases are published on the [GitHub Releases page](https://github.com/ShahabAhmed01/enterprise-pos-erp/releases).
 
-This project is released under the MIT License. See the `LICENSE` file in this repository for the full text.
+| Version | Date | Highlights |
+|:-------:|:----:|------------|
+| v1.0.2 | May 2026 | Rich Pakistani demo data, instant startup, modal centering, RBAC, notifications fix, chart colors |
+| v1.0.1 | May 2026 | Packaging fixes, GPU disable, database statement reuse fix |
+| v1.0.0 | — | Initial release |
 
-Contributions are welcome — please review the contribution guidelines and open issues or pull requests on GitHub.
+---
+
+## License
+
+This project is open source under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+  <sub>Built with Electron, React, and SQL.js</sub>
+</div>
