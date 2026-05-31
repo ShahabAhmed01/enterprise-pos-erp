@@ -115,6 +115,19 @@ npm install
 npm run dev:main
 ```
 
+### Quickstart (recommended)
+
+Prefer this command sequence for local development to ensure Vite and Electron start in the correct order (prevents `__dirname` and ESM runtime issues):
+
+```bash
+npm install
+npm run dev:electron
+```
+
+Notes:
+- Use `npm run dev:electron` instead of running Electron main files directly. This starts Vite first and then launches Electron so Node/Electron resolve native modules and `__dirname` correctly.
+- Ensure you have a Node LTS version (Node 18.x or 20.x) installed.
+
 ### 5.3 Default Administrator Credentials
 
 Upon first launch, the system automatically seeds the secure database. You may log in using the following test credentials:
