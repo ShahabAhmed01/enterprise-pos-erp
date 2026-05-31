@@ -92,5 +92,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Event Listeners
   onMenuAction: (callback) => ipcRenderer.on('menu-action', (event, action) => callback(action)),
   onNavigate: (callback) => ipcRenderer.on('navigate', (event, path) => callback(path)),
+  onAppReady: (callback) => ipcRenderer.on('app:ready', () => callback()),
   removeAllListeners: (channel) => ipcRenderer.removeAllListeners(channel)
 });

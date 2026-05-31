@@ -234,17 +234,17 @@ function Sales({ user, showToast, setCurrentPage }) {
 
       {/* Detail Modal */}
       {showDetailModal && selectedSale && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="modal-backdrop"
-            onClick={() => setShowDetailModal(false)}
-          />
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setShowDetailModal(false)}
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="modal w-[600px]"
+            className="relative bg-white rounded-xl shadow-2xl w-full max-w-xl mx-4 max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
           >
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <h3 className="text-xl font-bold">Sale Details - {selectedSale.reference}</h3>
@@ -317,9 +317,9 @@ function Sales({ user, showToast, setCurrentPage }) {
                 </div>
               </div>
             </div>
+            </motion.div>
           </motion.div>
-        </>
-      )}
+        )}
     </motion.div>
   );
 }

@@ -33,8 +33,14 @@ function App() {
   const [theme, setTheme] = useState('light');
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
+    if (window.electronAPI) {
+      window.electronAPI.onAppReady(() => setIsLoading(false));
+      const timer = setTimeout(() => setIsLoading(false), 5000);
+      return () => { clearTimeout(timer); window.electronAPI.removeAllListeners?.('app:ready'); };
+    } else {
+      const timer = setTimeout(() => setIsLoading(false), 1500);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   useEffect(() => {

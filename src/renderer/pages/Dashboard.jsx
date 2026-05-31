@@ -144,7 +144,7 @@ function Dashboard({ user, showToast, setCurrentPage }) {
     labels: ['Sales', 'COGS', 'Expenses', 'Profit'],
     datasets: [{
       data: [stats?.monthSales || 100, 65, 15, 20],
-      backgroundColor: ['#ef4444', '#6b7280', '#f59e0b', '#10b981'],
+      backgroundColor: ['#4F46E5', '#EF4444', '#F59E0B', '#10B981'],
       borderWidth: 0,
     }]
   };

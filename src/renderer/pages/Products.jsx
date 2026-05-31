@@ -10,6 +10,8 @@ function Products({ user, showToast, setCurrentPage }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [brandFilter, setBrandFilter] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
@@ -27,13 +29,13 @@ function Products({ user, showToast, setCurrentPage }) {
     loadProducts();
     loadCategories();
     loadBrands();
-  }, [page, search]);
+  }, [page, search, categoryFilter, brandFilter]);
 
   const loadProducts = async () => {
     setLoading(true);
     try {
       if (window.electronAPI) {
-        const result = await window.electronAPI.getProducts({ page, limit: 20, search, status: 1 });
+        const result = await window.electronAPI.getProducts({ page, limit: 20, search, category_id: categoryFilter || undefined, brand_id: brandFilter || undefined, status: 1 });
         if (result.success) {
           setProducts(result.products);
           setTotalPages(result.pages);
@@ -180,13 +182,13 @@ function Products({ user, showToast, setCurrentPage }) {
             className="input pl-12"
           />
         </div>
-        <select className="select w-48">
+        <select className="select w-48" value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}>
           <option value="">All Categories</option>
           {categories.map(cat => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </select>
-        <select className="select w-48">
+        <select className="select w-48" value={brandFilter} onChange={(e) => { setBrandFilter(e.target.value); setPage(1); }}>
           <option value="">All Brands</option>
           {brands.map(brand => (
             <option key={brand.id} value={brand.id}>{brand.name}</option>
@@ -329,19 +331,19 @@ function Products({ user, showToast, setCurrentPage }) {
       {/* Product Modal */}
       <AnimatePresence>
         {showModal && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="modal-backdrop"
-              onClick={() => setShowModal(false)}
-            />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => setShowModal(false)}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="modal w-[700px] max-h-[90vh] overflow-y-auto"
+              className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white p-6 border-b border-gray-100 flex items-center justify-between">
                 <h3 className="text-xl font-bold">{editingProduct ? 'Edit Product' : 'Add New Product'}</h3>
@@ -493,7 +495,7 @@ function Products({ user, showToast, setCurrentPage }) {
                 </div>
               </form>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
     </motion.div>

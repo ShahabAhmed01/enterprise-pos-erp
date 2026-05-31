@@ -1,4 +1,4 @@
-import { fileURLToPath } from 'url';
+﻿import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -915,42 +915,63 @@ async function seedInitialData() {
     { id: uuidv4(), name: 'Delivery Staff', description: 'Delivery management access', permissions: JSON.stringify(['deliveries', 'orders']), is_system: 1 }
   ];
 
-  roles.forEach(role => db.prepare('INSERT INTO roles (id, name, description, permissions, is_system) VALUES (?, ?, ?, ?, ?)').run(role.id, role.name, role.description, role.permissions, role.is_system));
+  roles.forEach(role => {
+    try { db.prepare('INSERT INTO roles (id, name, description, permissions, is_system) VALUES (?, ?, ?, ?, ?)').run(role.id, role.name, role.description, role.permissions, role.is_system); } catch(e) { log.warn('Role insert error:', e.message); }
+  });
 
   // Create users
   const adminRoleId = roles[0].id;
   const hashedPassword = '$2a$10$.4eUej4iLU9guHU3o6laJuKvEjqqzEi/ZwR7O19F4GHzgs.G0bmtW';
   const adminUserId = uuidv4();
-  db.prepare(`
-    INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(adminUserId, 'admin@enterprise-pos.com', hashedPassword, 'System', 'Administrator', '+1234567890', adminRoleId, '1234', 1);
+  try {
+    db.prepare(`
+      INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(adminUserId, 'admin@enterprise-pos.com', hashedPassword, 'System', 'Administrator', '+1234567890', adminRoleId, '1234', 1);
+  } catch(e) { log.warn('Admin user insert error:', e.message); }
 
   const managerUserId = uuidv4();
-  db.prepare(`
-    INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(managerUserId, 'manager@enterprise-pos.com', hashedPassword, 'Branch', 'Manager', '+1234567891', roles[2].id, '2345', 1);
+  try {
+    db.prepare(`
+      INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(managerUserId, 'manager@enterprise-pos.com', hashedPassword, 'Branch', 'Manager', '+1234567891', roles[2].id, '2345', 1);
+  } catch(e) { log.warn('Manager user insert error:', e.message); }
 
   const cashierUserId = uuidv4();
-  db.prepare(`
-    INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(cashierUserId, 'cashier@enterprise-pos.com', hashedPassword, 'POS', 'Cashier', '+1234567892', roles[3].id, '3456', 1);
+  try {
+    db.prepare(`
+      INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(cashierUserId, 'cashier@enterprise-pos.com', hashedPassword, 'POS', 'Cashier', '+1234567892', roles[3].id, '3456', 1);
+  } catch(e) { log.warn('Cashier user insert error:', e.message); }
 
   // Create branch
   const mainBranchId = uuidv4();
-  db.prepare(`
-    INSERT INTO branches (id, name, code, address, city, country, is_main, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(mainBranchId, 'Main Store', 'HQ001', '123 Business Street', 'New York', 'USA', 1, 1);
+  try {
+    db.prepare(`
+      INSERT INTO branches (id, name, code, address, city, country, is_main, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(mainBranchId, 'Main Store', 'HQ001', '123 Business Street', 'New York', 'USA', 1, 1);
+  } catch(e) { log.warn('Branch insert error:', e.message); }
 
   // Create warehouse
   const mainWarehouseId = uuidv4();
-  db.prepare(`
-    INSERT INTO warehouses (id, name, code, branch_id, is_default, is_active)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).run(mainWarehouseId, 'Main Warehouse', 'WH001', mainBranchId, 1, 1);
+  try {
+    db.prepare(`
+      INSERT INTO warehouses (id, name, code, branch_id, is_default, is_active)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(mainWarehouseId, 'Main Warehouse', 'WH001', mainBranchId, 1, 1);
+  } catch(e) { log.warn('Warehouse insert error:', e.message); }
+
+  // Create second warehouse for transfers
+  const secondWarehouseId = uuidv4();
+  try {
+    db.prepare(`
+      INSERT INTO warehouses (id, name, code, branch_id, is_default, is_active)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).run(secondWarehouseId, 'Secondary Warehouse', 'WH002', mainBranchId, 0, 1);
+  } catch(e) { log.warn('Second warehouse insert error:', e.message); }
 
   // Create units
   const units = [
@@ -964,7 +985,9 @@ async function seedInitialData() {
     { id: uuidv4(), name: 'Pack', short_name: 'pack', is_integer: 1 }
   ];
 
-  units.forEach(unit => db.prepare('INSERT INTO units (id, name, short_name, is_integer) VALUES (?, ?, ?, ?)').run(unit.id, unit.name, unit.short_name, unit.is_integer));
+  units.forEach(unit => {
+    try { db.prepare('INSERT INTO units (id, name, short_name, is_integer) VALUES (?, ?, ?, ?)').run(unit.id, unit.name, unit.short_name, unit.is_integer); } catch(e) { log.warn('Unit insert error:', e.message); }
+  });
 
   // Create categories
   const categories = [
@@ -978,7 +1001,9 @@ async function seedInitialData() {
     { id: uuidv4(), name: 'Toys & Games', description: 'Toys and games for all ages' }
   ];
 
-  categories.forEach(cat => db.prepare('INSERT INTO categories (id, name, description) VALUES (?, ?, ?)').run(cat.id, cat.name, cat.description));
+  categories.forEach(cat => {
+    try { db.prepare('INSERT INTO categories (id, name, description) VALUES (?, ?, ?)').run(cat.id, cat.name, cat.description); } catch(e) { log.warn('Category insert error:', e.message); }
+  });
 
   // Create brands
   const brands = [
@@ -989,10 +1014,12 @@ async function seedInitialData() {
     { id: uuidv4(), name: 'Adidas', description: 'Adidas AG' },
     { id: uuidv4(), name: 'Coca-Cola', description: 'The Coca-Cola Company' },
     { id: uuidv4(), name: 'Pepsi', description: 'PepsiCo' },
-    { id: uuidv4(), name: 'Nestle', description: 'Nestlé S.A.' }
+    { id: uuidv4(), name: 'Nestle', description: 'NestlÃ© S.A.' }
   ];
 
-  brands.forEach(brand => db.prepare('INSERT INTO brands (id, name, description) VALUES (?, ?, ?)').run(brand.id, brand.name, brand.description));
+  brands.forEach(brand => {
+    try { db.prepare('INSERT INTO brands (id, name, description) VALUES (?, ?, ?)').run(brand.id, brand.name, brand.description); } catch(e) { log.warn('Brand insert error:', e.message); }
+  });
 
   // Create products
   const categoryIds = categories.map(c => c.id);
@@ -1001,43 +1028,45 @@ async function seedInitialData() {
   const productIds = [];
 
   const productData = [
-    { sku: 'ELEC001', barcode: '123456789001', name: 'iPhone 15 Pro', category_id: categoryIds[0], brand_id: brandIds[0], cost: 750.00, price: 999.00, stock: 45, min_stock: 5 },
-    { sku: 'ELEC002', barcode: '123456789002', name: 'Samsung Galaxy S24', category_id: categoryIds[0], brand_id: brandIds[1], cost: 650.00, price: 899.00, stock: 38, min_stock: 5 },
-    { sku: 'ELEC003', barcode: '123456789003', name: 'Sony WH-1000XM5 Headphones', category_id: categoryIds[0], brand_id: brandIds[2], cost: 220.00, price: 349.00, stock: 60, min_stock: 10 },
-    { sku: 'ELEC004', barcode: '123456789004', name: 'MacBook Air M3', category_id: categoryIds[0], brand_id: brandIds[0], cost: 950.00, price: 1299.00, stock: 22, min_stock: 3 },
-    { sku: 'ELEC005', barcode: '123456789005', name: 'iPad Pro 12.9', category_id: categoryIds[0], brand_id: brandIds[0], cost: 800.00, price: 1099.00, stock: 30, min_stock: 5 },
-    { sku: 'FASH001', barcode: '345678901001', name: 'Nike Air Max 270', category_id: categoryIds[2], brand_id: brandIds[3], cost: 85.00, price: 150.00, stock: 8, min_stock: 10 },
-    { sku: 'FASH002', barcode: '345678901002', name: 'Adidas Ultraboost 22', category_id: categoryIds[2], brand_id: brandIds[4], cost: 100.00, price: 180.00, stock: 55, min_stock: 10 },
-    { sku: 'GROC001', barcode: '234567890001', name: 'Pepsi 24 Pack', category_id: categoryIds[1], brand_id: brandIds[6], cost: 10.00, price: 18.00, stock: 200, min_stock: 50 },
-    { sku: 'GROC002', barcode: '234567890002', name: 'Coca-Cola 24 Pack', category_id: categoryIds[1], brand_id: brandIds[5], cost: 10.00, price: 18.00, stock: 180, min_stock: 50 },
-    { sku: 'GROC003', barcode: '234567890003', name: 'Nestle Pure Life Water 24 Pack', category_id: categoryIds[1], brand_id: brandIds[7], cost: 6.00, price: 12.00, stock: 300, min_stock: 100 }
+    { sku: 'ELEC001', name: 'iPhone 15 Pro', barcode: '123456789001', category_id: categoryIds[0], brand_id: brandIds[0], cost: 750.00, price: 999.00, stock: 45, min_stock: 5 },
+    { sku: 'ELEC002', name: 'Samsung Galaxy S24', barcode: '123456789002', category_id: categoryIds[0], brand_id: brandIds[1], cost: 650.00, price: 899.00, stock: 38, min_stock: 5 },
+    { sku: 'ELEC003', name: 'Sony WH-1000XM5 Headphones', barcode: '123456789003', category_id: categoryIds[0], brand_id: brandIds[2], cost: 220.00, price: 349.00, stock: 60, min_stock: 10 },
+    { sku: 'ELEC004', name: 'MacBook Air M3', barcode: '123456789004', category_id: categoryIds[0], brand_id: brandIds[0], cost: 950.00, price: 1299.00, stock: 22, min_stock: 3 },
+    { sku: 'ELEC005', name: 'iPad Pro 12.9', barcode: '123456789005', category_id: categoryIds[0], brand_id: brandIds[0], cost: 800.00, price: 1099.00, stock: 4, min_stock: 5 },
+    { sku: 'FASH001', name: 'Nike Air Max 270', barcode: '345678901001', category_id: categoryIds[2], brand_id: brandIds[3], cost: 85.00, price: 150.00, stock: 3, min_stock: 10 },
+    { sku: 'FASH002', name: 'Adidas Ultraboost 22', barcode: '345678901002', category_id: categoryIds[2], brand_id: brandIds[4], cost: 100.00, price: 180.00, stock: 55, min_stock: 10 },
+    { sku: 'FASH003', name: 'Nike Dri-FIT T-Shirt', barcode: '345678901003', category_id: categoryIds[2], brand_id: brandIds[3], cost: 22.00, price: 45.00, stock: 120, min_stock: 20 },
+    { sku: 'FASH004', name: 'Adidas Track Pants', barcode: '345678901004', category_id: categoryIds[2], brand_id: brandIds[4], cost: 35.00, price: 65.00, stock: 80, min_stock: 15 },
+    { sku: 'FASH005', name: 'Nike Running Shorts', barcode: '345678901005', category_id: categoryIds[2], brand_id: brandIds[3], cost: 20.00, price: 40.00, stock: 95, min_stock: 20 },
+    { sku: 'GROC001', name: 'Coca-Cola 24 Pack', barcode: '234567890001', category_id: categoryIds[1], brand_id: brandIds[5], cost: 10.00, price: 18.00, stock: 180, min_stock: 50 },
+    { sku: 'GROC002', name: 'Pepsi 24 Pack', barcode: '234567890002', category_id: categoryIds[1], brand_id: brandIds[6], cost: 10.00, price: 18.00, stock: 200, min_stock: 50 },
+    { sku: 'GROC003', name: 'Nestle Pure Life Water 24 Pack', barcode: '234567890003', category_id: categoryIds[1], brand_id: brandIds[7], cost: 6.00, price: 12.00, stock: 300, min_stock: 100 },
+    { sku: 'GROC004', name: 'Nestle KitKat Box 24pcs', barcode: '234567890004', category_id: categoryIds[1], brand_id: brandIds[7], cost: 14.00, price: 24.00, stock: 150, min_stock: 30 },
+    { sku: 'GROC005', name: 'Pepsi Diet 12 Pack', barcode: '234567890005', category_id: categoryIds[1], brand_id: brandIds[6], cost: 8.00, price: 14.00, stock: 160, min_stock: 40 },
+    { sku: 'GROC006', name: 'Coca-Cola Zero 24 Pack', barcode: '234567890006', category_id: categoryIds[1], brand_id: brandIds[5], cost: 10.00, price: 18.00, stock: 140, min_stock: 50 },
+    { sku: 'SPRT001', name: 'Adidas Football', barcode: '678901234001', category_id: categoryIds[5], brand_id: brandIds[4], cost: 18.00, price: 35.00, stock: 70, min_stock: 15 },
+    { sku: 'SPRT002', name: 'Nike Basketball', barcode: '678901234002', category_id: categoryIds[5], brand_id: brandIds[3], cost: 25.00, price: 45.00, stock: 55, min_stock: 10 },
+    { sku: 'SPRT003', name: 'Adidas Gym Bag', barcode: '678901234003', category_id: categoryIds[5], brand_id: brandIds[4], cost: 30.00, price: 55.00, stock: 40, min_stock: 10 },
+    { sku: 'SPRT004', name: 'Nike Yoga Mat', barcode: '678901234004', category_id: categoryIds[5], brand_id: brandIds[3], cost: 15.00, price: 30.00, stock: 85, min_stock: 20 },
+    { sku: 'SPRT005', name: 'Samsung Galaxy Watch Sport', barcode: '678901234005', category_id: categoryIds[5], brand_id: brandIds[1], cost: 200.00, price: 299.00, stock: 25, min_stock: 5 }
   ];
+
+  const insertProduct = db.prepare(`
+    INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, min_stock_level, tax_rate, is_track_stock)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const insertStock = db.prepare(`
+    INSERT INTO stock (id, product_id, warehouse_id, quantity, available_quantity)
+    VALUES (?, ?, ?, ?, ?)
+  `);
+
   productData.forEach(product => {
     const productId = uuidv4();
     productIds.push(productId);
-    db.prepare(`
-      INSERT INTO products (id, sku, barcode, name, description, category_id, brand_id, unit_id, cost_price, selling_price, min_stock_level, tax_rate, is_track_stock)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(
-      productId,
-      product.sku,
-      product.barcode,
-      product.name,
-      `High quality ${product.name.toLowerCase()}`,
-      product.category_id,
-      product.brand_id,
-      unitPcsId,
-      product.cost,
-      product.price,
-      product.min_stock,
-      10.00,
-      1
-    );
-
-    db.prepare(`
-      INSERT INTO stock (id, product_id, warehouse_id, quantity, available_quantity)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(uuidv4(), productId, mainWarehouseId, product.stock, product.stock);
+    try {
+      insertProduct.run(productId, product.sku, product.barcode, product.name, `High quality ${product.name.toLowerCase()}`, product.category_id, product.brand_id, unitPcsId, product.cost, product.price, product.min_stock, 10.00, 1);
+      insertStock.run(uuidv4(), productId, mainWarehouseId, product.stock, product.stock);
+    } catch(e) { log.warn('Product insert error:', e.message); }
   });
 
   // Create customers
@@ -1058,7 +1087,7 @@ async function seedInitialData() {
   customerData.forEach(cust => {
     const customerId = uuidv4();
     customerIds.push(customerId);
-    insertCustomer.run(customerId, cust.code, cust.first_name, cust.last_name, cust.email, cust.phone, cust.city, cust.type, cust.level, cust.points, 1);
+    try { insertCustomer.run(customerId, cust.code, cust.first_name, cust.last_name, cust.email, cust.phone, cust.city, cust.type, cust.level, cust.points, 1); } catch(e) { log.warn('Customer insert error:', e.message); }
   });
 
   // Create suppliers
@@ -1077,7 +1106,7 @@ async function seedInitialData() {
   supplierData.forEach(supp => {
     const supplierId = uuidv4();
     supplierIds.push(supplierId);
-    insertSupplier.run(supplierId, supp.code, supp.name, supp.email, supp.phone, supp.city, supp.notes, 1);
+    try { insertSupplier.run(supplierId, supp.code, supp.name, supp.email, supp.phone, supp.city, supp.notes, 1); } catch(e) { log.warn('Supplier insert error:', e.message); }
   });
 
   // Create accounts (capture IDs for transactions)
@@ -1107,12 +1136,16 @@ async function seedInitialData() {
     INSERT INTO accounts (id, account_number, name, type, subtype, opening_balance, is_system)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
-  accountData.forEach(acc => insertAccount.run(acc.id, acc.account_number, acc.name, acc.type, acc.subtype, acc.opening_balance, 1));
+  accountData.forEach(acc => {
+    try { insertAccount.run(acc.id, acc.account_number, acc.name, acc.type, acc.subtype, acc.opening_balance, 1); } catch(e) { log.warn('Account insert error:', e.message); }
+  });
 
   // Create expense categories
   const expenseCategories = ['Rent', 'Utilities', 'Salaries', 'Marketing', 'Supplies', 'Maintenance', 'Insurance', 'Travel', 'Professional Services', 'Other'];
   const insertExpenseCat = db.prepare('INSERT INTO expense_categories (id, name, description) VALUES (?, ?, ?)');
-  expenseCategories.forEach(cat => insertExpenseCat.run(uuidv4(), cat, `${cat} expenses`));
+  expenseCategories.forEach(cat => {
+    try { insertExpenseCat.run(uuidv4(), cat, `${cat} expenses`); } catch(e) { log.warn('Expense category insert error:', e.message); }
+  });
 
   // Create settings
   const settingsData = [
@@ -1131,7 +1164,9 @@ async function seedInitialData() {
   ];
 
   const insertSetting = db.prepare('INSERT INTO settings (id, key, value, type) VALUES (?, ?, ?, ?)');
-  settingsData.forEach(setting => insertSetting.run(uuidv4(), setting.key, setting.value, setting.type));
+  settingsData.forEach(setting => {
+    try { insertSetting.run(uuidv4(), setting.key, setting.value, setting.type); } catch(e) { log.warn('Setting insert error:', e.message); }
+  });
 
   // Create employees
   const employeeIds = [];
@@ -1150,25 +1185,30 @@ async function seedInitialData() {
   employeeData.forEach(emp => {
     const employeeId = uuidv4();
     employeeIds.push(employeeId);
-    insertEmployee.run(employeeId, emp.code, emp.first_name, emp.last_name, emp.email, emp.phone, emp.designation, emp.department, emp.salary, emp.active);
+    try { insertEmployee.run(employeeId, emp.code, emp.first_name, emp.last_name, emp.email, emp.phone, emp.designation, emp.department, emp.salary, emp.active); } catch(e) { log.warn('Employee insert error:', e.message); }
   });
 
-  // Create sales (May 25-31 2026)
+  // Create sales (15 sales over last 14 days)
   const usersForSales = [adminUserId, managerUserId, cashierUserId];
   const today = new Date();
-  const daysBase = [6, 6, 5, 4, 3, 2, 2, 1, 1, 0];
-  const paymentMethods = ['cash', 'card', 'cash', 'cash', 'card', 'cash', 'card', 'card', 'cash', 'card'];
-  const saleConfigs = [
-    { customerIdx: 0, userIdx: 0, items: [[0,2,999],[3,1,1299],[5,2,150]] },
-    { customerIdx: 1, userIdx: 1, items: [[2,2,349],[4,1,1099]] },
-    { customerIdx: null, userIdx: 2, items: [[6,3,180],[7,10,18],[8,5,18]] },
-    { customerIdx: null, userIdx: 0, items: [[1,1,899],[5,4,150]] },
-    { customerIdx: 2, userIdx: 1, items: [[0,1,999],[7,5,18],[9,5,12]] },
-    { customerIdx: 3, userIdx: 2, items: [[5,3,150],[8,8,18]] },
-    { customerIdx: null, userIdx: 0, items: [[3,1,1299],[6,2,180],[7,4,18],[9,3,12]] },
-    { customerIdx: 4, userIdx: 1, items: [[2,1,349],[4,1,1099],[5,1,150]] },
-    { customerIdx: null, userIdx: 2, items: [[1,1,899],[7,10,18]] },
-    { customerIdx: 5, userIdx: 0, items: [[4,1,1099],[6,2,180],[9,6,12]] }
+  const daysConfig = [13, 13, 13, 10, 10, 7, 7, 5, 5, 3, 3, 1, 1, 0, 0];
+  const paymentMethods = ['cash', 'card', 'cash', 'card', 'cash', 'card', 'cash', 'card', 'cash', 'card', 'cash', 'card', 'cash', 'card', 'cash'];
+  const salesConfigs = [
+    { customerIdx: 0, userIdx: 0, items: [[0, 2, 999], [3, 1, 1299], [5, 2, 150]] },
+    { customerIdx: 1, userIdx: 1, items: [[2, 2, 349], [4, 1, 1099]] },
+    { customerIdx: null, userIdx: 2, items: [[6, 3, 180], [10, 10, 18], [11, 5, 18]] },
+    { customerIdx: null, userIdx: 0, items: [[1, 1, 899], [5, 4, 150], [13, 2, 24]] },
+    { customerIdx: 2, userIdx: 1, items: [[0, 1, 999], [10, 5, 18], [12, 5, 12]] },
+    { customerIdx: 3, userIdx: 2, items: [[5, 3, 150], [8, 8, 65], [17, 2, 45]] },
+    { customerIdx: null, userIdx: 0, items: [[3, 1, 1299], [6, 2, 180], [10, 4, 18], [12, 3, 12]] },
+    { customerIdx: 4, userIdx: 1, items: [[2, 1, 349], [4, 1, 1099], [5, 1, 150]] },
+    { customerIdx: null, userIdx: 2, items: [[1, 1, 899], [10, 10, 18], [20, 1, 299]] },
+    { customerIdx: 5, userIdx: 0, items: [[4, 1, 1099], [6, 2, 180], [12, 6, 12]] },
+    { customerIdx: null, userIdx: 2, items: [[7, 3, 45], [9, 2, 40], [15, 4, 18]] },
+    { customerIdx: 6, userIdx: 1, items: [[0, 1, 999], [16, 2, 35], [19, 3, 30]] },
+    { customerIdx: null, userIdx: 0, items: [[14, 8, 14], [18, 2, 55], [20, 1, 299]] },
+    { customerIdx: 2, userIdx: 2, items: [[6, 1, 180], [11, 6, 18], [13, 3, 24]] },
+    { customerIdx: null, userIdx: 1, items: [[8, 5, 65], [17, 2, 45], [19, 4, 30]] }
   ];
 
   const insertSale = db.prepare(`
@@ -1186,9 +1226,11 @@ async function seedInitialData() {
     VALUES (?, ?, ?, ?)
   `);
 
-  saleConfigs.forEach((cfg, i) => {
+  const saleIds = [];
+  salesConfigs.forEach((cfg, i) => {
     const saleId = uuidv4();
-    const saleDate = new Date(today.getTime() - daysBase[i] * 86400000);
+    saleIds.push(saleId);
+    const saleDate = new Date(today.getTime() - daysConfig[i] * 86400000);
     const dateStr = saleDate.toISOString().split('T')[0];
     const reference = `SALE-${dateStr.replace(/-/g, '')}-${String(i + 1).padStart(3, '0')}`;
     const customerId = cfg.customerIdx !== null ? customerIds[cfg.customerIdx] : null;
@@ -1203,68 +1245,170 @@ async function seedInitialData() {
 
     const timestamp = `${dateStr}T${String(saleDate.getHours()).padStart(2, '0')}:${String(saleDate.getMinutes()).padStart(2, '0')}:00`;
 
-    insertSale.run(saleId, reference, customerId, userId, mainWarehouseId, mainBranchId, 'completed', subTotal, 0, tax, grandTotal, grandTotal, 0, paymentMethods[i], dateStr, timestamp, timestamp);
+    try {
+      insertSale.run(saleId, reference, customerId, userId, mainWarehouseId, mainBranchId, 'completed', subTotal, 0, tax, grandTotal, grandTotal, 0, paymentMethods[i], dateStr, timestamp, timestamp);
 
-    cfg.items.forEach(([pIdx, qty, price]) => {
-      const itemId = uuidv4();
-      const product = productData[pIdx];
-      const lineTotal = qty * price;
-      const lineTax = Math.round(lineTotal * 0.1 * 100) / 100;
-      insertSaleItem.run(itemId, saleId, productIds[pIdx], qty, price, 0, 0, 10.00, lineTax, lineTotal, product.name, product.sku);
-    });
+      cfg.items.forEach(([pIdx, qty, price]) => {
+        const itemId = uuidv4();
+        const product = productData[pIdx];
+        const lineTotal = qty * price;
+        const lineTax = Math.round(lineTotal * 0.1 * 100) / 100;
+        insertSaleItem.run(itemId, saleId, productIds[pIdx], qty, price, 0, 0, 10.00, lineTax, lineTotal, product.name, product.sku);
+      });
 
-    insertSalePayment.run(uuidv4(), saleId, paymentMethods[i], grandTotal);
+      insertSalePayment.run(uuidv4(), saleId, paymentMethods[i], grandTotal);
+    } catch(e) { log.warn('Sale insert error:', e.message); }
   });
 
   // Create expenses
   const expenseData = [
-    { reference: 'EXP-202605-001', category: 'Utilities', amount: 3500, description: 'Internet Bill', date: '2026-05-15', vendor: 'ISP Provider' },
-    { reference: 'EXP-202605-002', category: 'Salaries', amount: 250000, description: 'Staff Salaries', date: '2026-05-28', vendor: 'HR Department' },
-    { reference: 'EXP-202605-003', category: 'Supplies', amount: 8500, description: 'Office Supplies', date: '2026-05-20', vendor: 'Stationery Plus' },
-    { reference: 'EXP-202605-004', category: 'Marketing', amount: 45000, description: 'Marketing Campaign', date: '2026-05-25', vendor: 'Digital Agency' },
-    { reference: 'EXP-202605-005', category: 'Maintenance', amount: 12000, description: 'Equipment Maintenance', date: '2026-05-22', vendor: 'Tech Services' }
+    { reference: 'EXP-202605-001', category: 'Rent', amount: 2500, description: 'Monthly Rent', vendor: 'Landlord', daysAgo: 7 },
+    { reference: 'EXP-202605-002', category: 'Utilities', amount: 450, description: 'Electricity Bill', vendor: 'Electric Company', daysAgo: 6 },
+    { reference: 'EXP-202605-003', category: 'Utilities', amount: 120, description: 'Internet Bill', vendor: 'ISP Provider', daysAgo: 5 },
+    { reference: 'EXP-202605-004', category: 'Salaries', amount: 8500, description: 'Staff Salaries', vendor: 'HR Department', daysAgo: 4 },
+    { reference: 'EXP-202605-005', category: 'Supplies', amount: 280, description: 'Office Supplies', vendor: 'Stationery Plus', daysAgo: 3 },
+    { reference: 'EXP-202605-006', category: 'Marketing', amount: 1500, description: 'Marketing Campaign', vendor: 'Digital Agency', daysAgo: 2 },
+    { reference: 'EXP-202605-007', category: 'Maintenance', amount: 600, description: 'Equipment Maintenance', vendor: 'Tech Services', daysAgo: 1 }
   ];
   const insertExpense = db.prepare(`
     INSERT INTO expenses (id, reference, category, amount, description, date, vendor, status, user_id, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   expenseData.forEach(exp => {
-    try { insertExpense.run(uuidv4(), exp.reference, exp.category, exp.amount, exp.description, exp.date, exp.vendor, 'approved', adminUserId, `${exp.date}T10:00:00`); } catch(e) { log.warn('Expense insert error:', e.message); }
+    const expDate = new Date(today.getTime() - exp.daysAgo * 86400000);
+    const dateStr = expDate.toISOString().split('T')[0];
+    try { insertExpense.run(uuidv4(), exp.reference, exp.category, exp.amount, exp.description, dateStr, exp.vendor, 'approved', adminUserId, `${dateStr}T10:00:00`); } catch(e) { log.warn('Expense insert error:', e.message); }
   });
 
   // Create purchases
   const purchaseData = [
-    { reference: 'PO-202605-002', supplierIdx: 0, status: 'received', total: 7500, grandTotal: 7500, paidAmount: 7500, date: '2026-05-28', notes: 'iPhones x10' },
-    { reference: 'PO-202605-003', supplierIdx: 1, status: 'pending', total: 1700, grandTotal: 1700, paidAmount: 0, date: '2026-05-30', notes: 'Nike shoes x20' },
-    { reference: 'PO-202605-004', supplierIdx: 2, status: 'received', total: 850, grandTotal: 850, paidAmount: 850, date: '2026-05-29', notes: 'Beverages bulk' },
-    { reference: 'PO-202605-005', supplierIdx: 3, status: 'ordered', total: 4750, grandTotal: 4750, paidAmount: 0, date: '2026-05-31', notes: 'MacBooks x5' }
+    { reference: 'PO-202605-001', supplierIdx: 0, status: 'received', total: 7500, grandTotal: 7500, paidAmount: 7500, daysAgo: 8, notes: 'iPhone 15 Pro x10' },
+    { reference: 'PO-202605-002', supplierIdx: 1, status: 'pending', total: 1700, grandTotal: 1700, paidAmount: 0, daysAgo: 6, notes: 'Nike shoes x20' },
+    { reference: 'PO-202605-003', supplierIdx: 2, status: 'received', total: 850, grandTotal: 850, paidAmount: 850, daysAgo: 5, notes: 'Beverages bulk order' },
+    { reference: 'PO-202605-004', supplierIdx: 3, status: 'ordered', total: 4750, grandTotal: 4750, paidAmount: 0, daysAgo: 3, notes: 'MacBook Air M3 x5' },
+    { reference: 'PO-202605-005', supplierIdx: 4, status: 'ordered', total: 3250, grandTotal: 3250, paidAmount: 0, daysAgo: 1, notes: 'Nike apparel bulk' }
   ];
   const insertPurchase = db.prepare(`
     INSERT INTO purchases (id, reference, supplier_id, warehouse_id, status, total, grand_total, paid_amount, due_amount, purchase_date, notes, created_by, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   purchaseData.forEach(p => {
+    const pDate = new Date(today.getTime() - p.daysAgo * 86400000);
+    const dateStr = pDate.toISOString().split('T')[0];
     const due = p.grandTotal - p.paidAmount;
-    try { insertPurchase.run(uuidv4(), p.reference, supplierIds[p.supplierIdx], mainWarehouseId, p.status, p.total, p.grandTotal, p.paidAmount, due, p.date, p.notes, adminUserId, `${p.date}T09:00:00`, `${p.date}T09:00:00`); } catch(e) { log.warn('Purchase insert error:', e.message); }
+    try { insertPurchase.run(uuidv4(), p.reference, supplierIds[p.supplierIdx], mainWarehouseId, p.status, p.total, p.grandTotal, p.paidAmount, due, dateStr, p.notes, adminUserId, `${dateStr}T09:00:00`, `${dateStr}T09:00:00`); } catch(e) { log.warn('Purchase insert error:', e.message); }
   });
 
-  // Create activity logs
-  const now = new Date();
+  // Create stock transfers
+  const transferData = [
+    { reference: 'TRF-202605-001', from: mainWarehouseId, to: secondWarehouseId, status: 'completed', items: [{ product_id: productIds[0], quantity: 5 }, { product_id: productIds[4], quantity: 3 }], notes: 'Stock redistribution for Electronics', daysAgo: 10 },
+    { reference: 'TRF-202605-002', from: mainWarehouseId, to: secondWarehouseId, status: 'pending', items: [{ product_id: productIds[5], quantity: 10 }, { product_id: productIds[6], quantity: 8 }], notes: 'Fashion items transfer', daysAgo: 7 },
+    { reference: 'TRF-202605-003', from: mainWarehouseId, to: secondWarehouseId, status: 'completed', items: [{ product_id: productIds[10], quantity: 20 }, { product_id: productIds[11], quantity: 15 }, { product_id: productIds[12], quantity: 30 }], notes: 'Beverages stock transfer', daysAgo: 5 },
+    { reference: 'TRF-202605-004', from: secondWarehouseId, to: mainWarehouseId, status: 'sent', items: [{ product_id: productIds[15], quantity: 10 }, { product_id: productIds[16], quantity: 5 }], notes: 'Sports equipment transfer', daysAgo: 3 },
+    { reference: 'TRF-202605-005', from: mainWarehouseId, to: secondWarehouseId, status: 'draft', items: [{ product_id: productIds[7], quantity: 25 }, { product_id: productIds[8], quantity: 20 }, { product_id: productIds[9], quantity: 15 }], notes: 'Apparel bulk transfer', daysAgo: 1 }
+  ];
+  const insertTransfer = db.prepare(`
+    INSERT INTO transfers (id, reference, from_warehouse_id, to_warehouse_id, status, items, total_items, notes, initiated_by, sent_at, received_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  transferData.forEach(t => {
+    const tDate = new Date(today.getTime() - t.daysAgo * 86400000);
+    const dateStr = tDate.toISOString().split('T')[0];
+    const itemsJson = JSON.stringify(t.items);
+    const totalItems = t.items.reduce((sum, it) => sum + it.quantity, 0);
+    let sentAt = null;
+    let receivedAt = null;
+    if (t.status === 'completed') {
+      const sentDate = new Date(tDate.getTime() + 3600000);
+      const recvDate = new Date(tDate.getTime() + 7200000);
+      sentAt = sentDate.toISOString().replace('T', ' ').substring(0, 19);
+      receivedAt = recvDate.toISOString().replace('T', ' ').substring(0, 19);
+    } else if (t.status === 'sent') {
+      const sentDate = new Date(tDate.getTime() + 3600000);
+      sentAt = sentDate.toISOString().replace('T', ' ').substring(0, 19);
+    }
+    const ts = `${dateStr}T09:00:00`;
+    try { insertTransfer.run(uuidv4(), t.reference, t.from, t.to, t.status, itemsJson, totalItems, t.notes, adminUserId, sentAt, receivedAt, ts); } catch(e) { log.warn('Transfer insert error:', e.message); }
+  });
+
+  // Create account transactions (9 with realistic balances)
+  const txData = [
+    { accountId: cashAccountId, type: 'deposit', amount: 150000, desc: 'Opening balance - Cash account', balanceAfter: 150000 },
+    { accountId: bankAccountId, type: 'deposit', amount: 850000, desc: 'Opening balance - Bank account', balanceAfter: 850000 },
+    { accountId: arAccountId, type: 'deposit', amount: 45000, desc: 'Accounts Receivable opening balance', balanceAfter: 45000 },
+    { accountId: invAccountId, type: 'deposit', amount: 183145, desc: 'Inventory value opening balance', balanceAfter: 183145 },
+    { accountId: apAccountId, type: 'expense', amount: 67000, desc: 'Accounts Payable opening balance', balanceAfter: -67000 },
+    { accountId: ccAccountId, type: 'expense', amount: 23000, desc: 'Credit Cards opening balance', balanceAfter: -23000 },
+    { accountId: revenueAccountId, type: 'revenue', amount: 285000, desc: 'Sales Revenue opening balance', balanceAfter: 285000 },
+    { accountId: cogsAccountId, type: 'expense', amount: 142000, desc: 'Cost of Goods Sold opening balance', balanceAfter: -142000 },
+    { accountId: expenseAccountId, type: 'expense', amount: 95000, desc: 'Operating Expenses opening balance', balanceAfter: -95000 }
+  ];
+  const insertTx = db.prepare(`
+    INSERT INTO account_transactions (id, account_id, transaction_type, amount, balance_after, description, user_id, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const txDateStr = today.toISOString().split('T')[0];
+  txData.forEach(tx => {
+    try { insertTx.run(uuidv4(), tx.accountId, tx.type, tx.amount, tx.balanceAfter, tx.desc, adminUserId, `${txDateStr} 08:00:00`); } catch(e) { log.warn('Account transaction insert error:', e.message); }
+  });
+
+  // Update account current_balances
+  const updateAccountBalance = db.prepare('UPDATE accounts SET current_balance = ? WHERE id = ?');
+  txData.forEach(tx => {
+    try { updateAccountBalance.run(tx.balanceAfter, tx.accountId); } catch(e) { log.warn('Account balance update error:', e.message); }
+  });
+
+  // Create sale returns (3 returns linked to first 3 sales)
+  const returnData = [
+    { reference: 'RET-202605-001', saleIdx: 0, reason: 'Defective product - screen issue', items: [{ pIdx: 0, qty: 1 }], daysAgo: 12 },
+    { reference: 'RET-202605-002', saleIdx: 1, reason: 'Wrong item received', items: [{ pIdx: 2, qty: 1 }], daysAgo: 9 },
+    { reference: 'RET-202605-003', saleIdx: 2, reason: 'Customer changed mind', items: [{ pIdx: 6, qty: 1 }, { pIdx: 10, qty: 3 }], daysAgo: 6 }
+  ];
+  const insertReturn = db.prepare(`
+    INSERT INTO sales_returns (id, reference, sale_id, customer_id, reason, total, status, created_by, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  const insertReturnItem = db.prepare(`
+    INSERT INTO sales_return_items (id, return_id, product_id, quantity, unit_price, subtotal)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `);
+  returnData.forEach(r => {
+    const retId = uuidv4();
+    const retDate = new Date(today.getTime() - r.daysAgo * 86400000);
+    const dateStr = retDate.toISOString().split('T')[0];
+    const saleId = saleIds[r.saleIdx];
+    let total = 0;
+    r.items.forEach(item => {
+      const prod = productData[item.pIdx];
+      total += item.qty * prod.price;
+    });
+    const customerId = salesConfigs[r.saleIdx].customerIdx !== null ? customerIds[salesConfigs[r.saleIdx].customerIdx] : null;
+    try {
+      insertReturn.run(retId, r.reference, saleId, customerId, r.reason, total, 'approved', adminUserId, `${dateStr}T11:00:00`);
+      r.items.forEach(item => {
+        const prod = productData[item.pIdx];
+        const subtotal = item.qty * prod.price;
+        insertReturnItem.run(uuidv4(), retId, productIds[item.pIdx], item.qty, prod.price, subtotal);
+      });
+    } catch(e) { log.warn('Return insert error:', e.message); }
+  });
+
+  // Create activity logs (15 entries)
   const logEntries = [
-    { daysAgo: 6, userIdx: 0, action: 'User Login', entity: 'users', desc: 'Admin logged in' },
-    { daysAgo: 6, userIdx: 1, action: 'User Login', entity: 'users', desc: 'Manager logged in' },
-    { daysAgo: 5, userIdx: 2, action: 'User Login', entity: 'users', desc: 'Cashier logged in' },
-    { daysAgo: 5, userIdx: 0, action: 'Product Added', entity: 'products', desc: 'Added 10 products to inventory' },
-    { daysAgo: 4, userIdx: 1, action: 'Sale Completed', entity: 'sales', desc: 'Sale SALE-20260527-004 completed' },
-    { daysAgo: 4, userIdx: 0, action: 'Customer Added', entity: 'customers', desc: 'Added Ahmed Khan as customer' },
-    { daysAgo: 3, userIdx: 2, action: 'Sale Completed', entity: 'sales', desc: 'Sale SALE-20260528-005 completed' },
-    { daysAgo: 3, userIdx: 1, action: 'Supplier Added', entity: 'suppliers', desc: 'Added TechWorld Distributors' },
-    { daysAgo: 2, userIdx: 0, action: 'Purchase Ordered', entity: 'purchases', desc: 'PO-202605-002 created' },
-    { daysAgo: 2, userIdx: 2, action: 'Sale Completed', entity: 'sales', desc: 'Sale SALE-20260529-006 completed' },
-    { daysAgo: 1, userIdx: 1, action: 'Expense Recorded', entity: 'expenses', desc: 'Staff Salaries expense recorded' },
-    { daysAgo: 1, userIdx: 0, action: 'User Login', entity: 'users', desc: 'Admin logged in' },
-    { daysAgo: 0, userIdx: 1, action: 'Sale Completed', entity: 'sales', desc: 'Sale SALE-20260531-010 completed' },
-    { daysAgo: 0, userIdx: 2, action: 'User Logout', entity: 'users', desc: 'Cashier logged out' },
+    { daysAgo: 13, userIdx: 0, action: 'User Login', entity: 'users', desc: 'Admin logged in' },
+    { daysAgo: 13, userIdx: 1, action: 'User Login', entity: 'users', desc: 'Manager logged in' },
+    { daysAgo: 12, userIdx: 2, action: 'User Login', entity: 'users', desc: 'Cashier logged in' },
+    { daysAgo: 11, userIdx: 0, action: 'Product Added', entity: 'products', desc: 'Added 21 products to inventory' },
+    { daysAgo: 10, userIdx: 1, action: 'Sale Completed', entity: 'sales', desc: 'Sale completed for Ahmed Khan' },
+    { daysAgo: 9, userIdx: 0, action: 'Customer Added', entity: 'customers', desc: 'Added 7 customer records' },
+    { daysAgo: 8, userIdx: 2, action: 'Sale Completed', entity: 'sales', desc: 'Sale completed for walk-in customer' },
+    { daysAgo: 7, userIdx: 1, action: 'Supplier Added', entity: 'suppliers', desc: 'Added 5 supplier records' },
+    { daysAgo: 6, userIdx: 0, action: 'Purchase Ordered', entity: 'purchases', desc: 'Purchase order PO-202605-001 created' },
+    { daysAgo: 5, userIdx: 2, action: 'Sale Completed', entity: 'sales', desc: 'Sale completed for Fatima Sheikh' },
+    { daysAgo: 4, userIdx: 1, action: 'Expense Recorded', entity: 'expenses', desc: 'Staff Salaries expense recorded' },
+    { daysAgo: 3, userIdx: 0, action: 'Purchase Ordered', entity: 'purchases', desc: 'Purchase order PO-202605-004 created' },
+    { daysAgo: 2, userIdx: 1, action: 'Sale Completed', entity: 'sales', desc: 'Sale completed for Bilal Ahmed' },
+    { daysAgo: 1, userIdx: 2, action: 'User Logout', entity: 'users', desc: 'Cashier logged out' },
     { daysAgo: 0, userIdx: 0, action: 'System Backup', entity: 'system', desc: 'Daily backup completed' }
   ];
   const insertLog = db.prepare(`
@@ -1272,45 +1416,32 @@ async function seedInitialData() {
     VALUES (?, ?, ?, ?, ?, ?)
   `);
   logEntries.forEach(entry => {
-    const logDate = new Date(now.getTime() - entry.daysAgo * 86400000);
+    const logDate = new Date(today.getTime() - entry.daysAgo * 86400000);
     const ts = logDate.toISOString().replace('T', ' ').substring(0, 19);
     try { insertLog.run(uuidv4(), usersForSales[entry.userIdx], entry.action, entry.entity, entry.desc, ts); } catch(e) { log.warn('Activity log insert error:', e.message); }
   });
 
-  // Create notifications
+  // Create notifications (5 entries)
   const notifData = [
-    { userIdx: 0, type: 'stock_alert', title: 'Low Stock Alert', message: 'Nike Air Max 270 stock is below threshold. Current stock: 8, Minimum: 10' },
-    { userIdx: 0, type: 'customer', title: 'New Customer Registered', message: 'Ahmed Khan has been registered as a new customer' },
-    { userIdx: 1, type: 'purchase', title: 'Purchase Order Pending', message: 'Purchase order PO-202605-003 is pending approval' },
-    { userIdx: 0, type: 'achievement', title: 'Monthly Sales Target Achieved', message: 'Congratulations! Sales team has achieved the monthly target of $75,000' },
-    { userIdx: 1, type: 'system', title: 'System Backup Completed', message: 'Automatic system backup completed successfully at 02:00 AM' }
+    { userIdx: 0, type: 'stock_alert', title: 'Low Stock Alert', message: 'Nike Air Max 270 stock is below threshold. Current stock: 3, Minimum: 10', is_read: 0 },
+    { userIdx: 0, type: 'customer', title: 'New Customer Registered', message: 'Ahmed Khan has been registered as a new customer', is_read: 0 },
+    { userIdx: 1, type: 'purchase', title: 'Purchase Order Pending', message: 'Purchase order PO-202605-002 is pending approval', is_read: 0 },
+    { userIdx: 0, type: 'achievement', title: 'Monthly Sales Target Achieved', message: 'Congratulations! Sales team has achieved the monthly target', is_read: 1 },
+    { userIdx: 1, type: 'system', title: 'System Backup Completed', message: 'Automatic system backup completed successfully at 02:00 AM', is_read: 1 }
   ];
   const insertNotif = db.prepare(`
-    INSERT INTO notifications (id, user_id, type, title, message, created_at)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO notifications (id, user_id, type, title, message, is_read, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
   notifData.forEach(notif => {
-    const notifDate = new Date(now.getTime() - 1 * 86400000);
+    const notifDate = new Date(today.getTime() - 1 * 86400000);
     const ts = notifDate.toISOString().replace('T', ' ').substring(0, 19);
-    try { insertNotif.run(uuidv4(), usersForSales[notif.userIdx], notif.type, notif.title, notif.message, ts); } catch(e) { log.warn('Notification insert error:', e.message); }
-  });
-
-  // Create account transactions
-  const txData = [
-    { accountId: cashAccountId, type: 'deposit', amount: 150000, desc: 'Opening balance - Cash account', balanceAfter: 150000 },
-    { accountId: bankAccountId, type: 'deposit', amount: 500000, desc: 'Opening balance - Bank account', balanceAfter: 500000 },
-    { accountId: revenueAccountId, type: 'revenue', amount: 85000, desc: 'Monthly sales revenue', balanceAfter: 85000 },
-    { accountId: expenseAccountId, type: 'expense', amount: 319000, desc: 'Monthly operating expenses', balanceAfter: -319000 }
-  ];
-  const insertTx = db.prepare(`
-    INSERT INTO account_transactions (id, account_id, transaction_type, amount, balance_after, description, user_id, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-  txData.forEach(tx => {
-    try { insertTx.run(uuidv4(), tx.accountId, tx.type, tx.amount, tx.balanceAfter, tx.desc, adminUserId, '2026-05-31 08:00:00'); } catch(e) { log.warn('Account transaction insert error:', e.message); }
+    try { insertNotif.run(uuidv4(), usersForSales[notif.userIdx], notif.type, notif.title, notif.message, notif.is_read, ts); } catch(e) { log.warn('Notification insert error:', e.message); }
   });
 
   log.info('Initial data seeded successfully');
 }
 
+
 export { initDatabase, getDatabase };
+

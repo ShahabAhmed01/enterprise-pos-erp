@@ -610,19 +610,19 @@ function POS({ user, showToast, setCurrentPage }) {
       {/* Payment Modal */}
       <AnimatePresence>
         {showPaymentModal && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="modal-backdrop"
-              onClick={() => !isProcessing && setShowPaymentModal(false)}
-            />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => !isProcessing && setShowPaymentModal(false)}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="modal w-[500px]"
+              className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -713,26 +713,26 @@ function POS({ user, showToast, setCurrentPage }) {
                 </button>
               </div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 
       {/* Held Orders Modal */}
       <AnimatePresence>
         {showHeldOrders && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="modal-backdrop"
-              onClick={() => setShowHeldOrders(false)}
-            />
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => setShowHeldOrders(false)}
+          >
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="modal w-[600px]"
+              className="relative bg-white rounded-xl shadow-2xl w-full max-w-xl mx-4 max-h-[90vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
             >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -770,7 +770,7 @@ function POS({ user, showToast, setCurrentPage }) {
                 )}
               </div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

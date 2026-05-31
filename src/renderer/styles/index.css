@@ -193,25 +193,11 @@
   }
   
   .modal-backdrop {
-    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-40;
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/50;
   }
   
   .modal {
-    @apply fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl z-50 max-h-[90vh] overflow-hidden;
-  }
-
-  [role="dialog"], .dialog, .popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 50;
-  }
-
-  .overlay[data-modal], .modal-overlay {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @apply relative bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto;
   }
 
   .toast {

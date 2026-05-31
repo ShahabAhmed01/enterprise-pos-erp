@@ -96,9 +96,8 @@ function Customers({ user, showToast }) {
       )}
 
       {showModal && (
-        <>
-          <div className="modal-backdrop" onClick={() => setShowModal(false)} />
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal w-[500px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowModal(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <h3 className="text-xl font-bold">Add Customer</h3>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5" /></button>
@@ -121,7 +120,7 @@ function Customers({ user, showToast }) {
               </div>
             </form>
           </motion.div>
-        </>
+        </div>
       )}
     </motion.div>
   );

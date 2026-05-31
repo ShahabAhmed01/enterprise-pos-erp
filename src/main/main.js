@@ -292,22 +292,19 @@ app.whenReady().then(async () => {
   log.info('App is ready, initializing...');
   
   try {
-    // Show splash and main window immediately
-    createSplashWindow();
+    // Create main window immediately - show:true so it appears instantly
     const win = createMainWindow();
+    log.info('Main window created, starting background init...');
 
     // Setup IPC handlers with window reference
     setupIpcHandlers(ipcMain, store, win);
     log.info('IPC handlers setup complete');
 
-    // Initialize database in background
+    // Initialize database in background - show splash in renderer until done
     await initDatabase();
     log.info('Database initialized successfully');
 
-    // Close splash once DB is ready
-    if (splashWindow) {
-      splashWindow.close();
-    }
+    // Signal renderer that DB is ready (closes splash in App.jsx)
     win.webContents.send('app:ready');
     
   } catch (error) {
@@ -318,7 +315,7 @@ app.whenReady().then(async () => {
     } catch (e) {
       log.error('Could not show error dialog:', e);
     }
-    app.exit(1);
+    // Don't exit - let renderer show error state
   }
 });
 

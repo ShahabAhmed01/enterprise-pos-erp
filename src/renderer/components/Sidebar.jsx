@@ -46,7 +46,71 @@ const settingsItems = [
 ];
 
 function Sidebar({ currentPage, setCurrentPage, collapsed, setCollapsed, user }) {
-  const MenuSection = ({ title, items }) => (
+  const role = user?.role || '';
+  const isSuperAdmin = role === 'Super Admin';
+  const isManager = role === 'Manager' || role === 'Branch Manager';
+  const isCashier = role === 'Cashier';
+
+  const menuItems = [
+    ...(isSuperAdmin || isManager ? [{ id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }] : []),
+    { id: 'pos', label: 'Point of Sale', icon: ShoppingCart, highlight: true },
+    ...(isSuperAdmin || isManager ? [
+      { id: 'sales', label: 'Sales', icon: Receipt },
+      { id: 'returns', label: 'Returns', icon: ArrowLeftRight },
+    ] : isCashier ? [
+      { id: 'sales', label: 'My Sales', icon: Receipt },
+      { id: 'returns', label: 'Returns', icon: ArrowLeftRight },
+    ] : []),
+  ];
+
+  const inventoryItems = isSuperAdmin ? [
+    { id: 'products', label: 'Products', icon: Package },
+    { id: 'categories', label: 'Categories', icon: Tags },
+    { id: 'brands', label: 'Brands', icon: Factory },
+    { id: 'inventory', label: 'Inventory', icon: Box },
+    { id: 'transfers', label: 'Transfers', icon: ArrowLeftRight },
+  ] : isManager ? [
+    { id: 'products', label: 'Products', icon: Package },
+    { id: 'categories', label: 'Categories', icon: Tags },
+    { id: 'brands', label: 'Brands', icon: Factory },
+    { id: 'inventory', label: 'Inventory', icon: Box },
+    { id: 'transfers', label: 'Transfers', icon: ArrowLeftRight },
+  ] : [];
+
+  const peopleItems = isSuperAdmin ? [
+    { id: 'customers', label: 'Customers', icon: Users },
+    { id: 'suppliers', label: 'Suppliers', icon: Truck },
+    { id: 'employees', label: 'Employees', icon: UserPlus },
+  ] : isManager ? [
+    { id: 'customers', label: 'Customers', icon: Users },
+    { id: 'suppliers', label: 'Suppliers', icon: Truck },
+    { id: 'employees', label: 'Employees', icon: UserPlus },
+  ] : isCashier ? [
+    { id: 'customers', label: 'Customers', icon: Users },
+  ] : [];
+
+  const financeItems = isSuperAdmin ? [
+    { id: 'accounts', label: 'Accounts', icon: Wallet },
+    { id: 'expenses', label: 'Expenses', icon: Calculator },
+    { id: 'purchases', label: 'Purchases', icon: ClipboardList },
+  ] : isManager ? [
+    { id: 'expenses', label: 'Expenses', icon: Calculator },
+    { id: 'purchases', label: 'Purchases', icon: ClipboardList },
+  ] : [];
+
+  const reportsItems = (isSuperAdmin || isManager) ? [
+    { id: 'reports', label: 'Reports', icon: BarChart3 },
+    ...(isSuperAdmin ? [{ id: 'activity', label: 'Activity Logs', icon: Activity }] : []),
+  ] : [];
+
+  const settingsItems = isSuperAdmin ? [
+    { id: 'settings', label: 'Settings', icon: Settings },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
+  ] : [];
+
+  const MenuSection = ({ title, items }) => {
+    if (!items || items.length === 0) return null;
+    return (
     <div className="mb-4">
       {!collapsed && (
         <h3 className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
@@ -83,6 +147,7 @@ function Sidebar({ currentPage, setCurrentPage, collapsed, setCollapsed, user })
       </div>
     </div>
   );
+  };
 
   return (
     <motion.aside

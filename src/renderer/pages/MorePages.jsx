@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Plus, Loader2, X, ChevronLeft, ChevronRight, Truck, Phone, Mail, MapPin, DollarSign, Calendar, Download, Edit2, Eye } from 'lucide-react';
+import { Search, Plus, Loader2, X, ChevronLeft, ChevronRight, Truck, Phone, Mail, MapPin, DollarSign, Calendar, Download, Edit2, Eye, Bell, Activity } from 'lucide-react';
 
 // ==================== SUPPLIERS ====================
 export function Suppliers({ user, showToast }) {
@@ -66,9 +66,8 @@ export function Suppliers({ user, showToast }) {
       )}
 
       {showModal && (
-        <>
-          <div className="modal-backdrop" onClick={() => setShowModal(false)} />
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal w-[500px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowModal(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
               <h3 className="text-xl font-bold">Add Supplier</h3>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X className="w-5 h-5" /></button>
@@ -85,7 +84,7 @@ export function Suppliers({ user, showToast }) {
               </div>
             </form>
           </motion.div>
-        </>
+        </div>
       )}
     </motion.div>
   );
@@ -498,19 +497,123 @@ export function Returns({ user, showToast }) {
 }
 
 export function Notifications({ user, showToast }) {
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { loadNotifications(); }, []);
+
+  const loadNotifications = async () => {
+    setLoading(true);
+    try {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.getNotifications({});
+        if (result.success) setNotifications(result.notifications || []);
+      } else {
+        setNotifications([
+          { id: '1', type: 'stock_alert', title: 'Low Stock Alert', message: 'Nike Air Max 270 stock is below threshold.', is_read: 0, created_at: new Date().toISOString() },
+          { id: '2', type: 'system', title: 'Backup Complete', message: 'System backup completed successfully.', is_read: 0, created_at: new Date().toISOString() },
+          { id: '3', type: 'customer', title: 'New Customer', message: 'Ahmed Khan registered as customer.', is_read: 1, created_at: new Date(Date.now() - 86400000).toISOString() },
+        ]);
+      }
+    } catch (e) { showToast('Failed to load notifications', 'error'); }
+    setLoading(false);
+  };
+
+  const handleMarkRead = async (notifId) => {
+    if (window.electronAPI) {
+      await window.electronAPI.markNotificationRead({ id: notifId });
+    }
+    setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, is_read: 1 } : n));
+  };
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div><h1 className="text-2xl font-bold text-gray-900">Notifications</h1><p className="text-gray-500">System notifications and alerts</p></div>
-      <div className="card p-12 text-center"><p className="text-gray-500">No new notifications</p></div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+          <p className="text-gray-500">System notifications and alerts</p>
+        </div>
+        {unreadCount > 0 && <span className="badge badge-danger">{unreadCount} unread</span>}
+      </div>
+      {loading ? (
+        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-red-500" /></div>
+      ) : notifications.length === 0 ? (
+        <div className="card p-12 text-center"><Bell className="w-12 h-12 mx-auto text-gray-300 mb-3" /><p className="text-gray-500">No notifications</p></div>
+      ) : (
+        <div className="space-y-3">
+          {notifications.map((notif) => (
+            <motion.div
+              key={notif.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className={`card p-4 flex items-start gap-4 cursor-pointer transition-colors ${!notif.is_read ? 'border-l-4 border-l-red-500 bg-red-50/50' : 'hover:bg-gray-50'}`}
+              onClick={() => !notif.is_read && handleMarkRead(notif.id)}
+            >
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${notif.type === 'stock_alert' ? 'bg-amber-100 text-amber-600' : notif.type === 'system' ? 'bg-blue-100 text-blue-600' : notif.type === 'customer' ? 'bg-emerald-100 text-emerald-600' : 'bg-purple-100 text-purple-600'}`}>
+                <Bell className="w-5 h-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`font-medium ${!notif.is_read ? 'text-gray-900' : 'text-gray-600'}`}>{notif.title}</p>
+                <p className="text-sm text-gray-500 mt-0.5">{notif.message}</p>
+                <p className="text-xs text-gray-400 mt-1">{new Date(notif.created_at).toLocaleDateString()}</p>
+              </div>
+              {!notif.is_read && <span className="w-2 h-2 rounded-full bg-red-500 mt-2 flex-shrink-0" />}
+            </motion.div>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 }
 
 export function ActivityLogs({ user, showToast }) {
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { loadLogs(); }, []);
+
+  const loadLogs = async () => {
+    setLoading(true);
+    try {
+      if (window.electronAPI) {
+        const result = await window.electronAPI.getActivityLogs({ page: 1, limit: 50 });
+        if (result.success) setLogs(result.logs || []);
+      } else {
+        setLogs([
+          { id: '1', action: 'User Login', entity_type: 'users', created_at: new Date().toISOString(), user_name: 'Admin' },
+          { id: '2', action: 'Sale Completed', entity_type: 'sales', created_at: new Date(Date.now() - 3600000).toISOString(), user_name: 'Cashier' },
+          { id: '3', action: 'Product Added', entity_type: 'products', created_at: new Date(Date.now() - 7200000).toISOString(), user_name: 'Manager' },
+        ]);
+      }
+    } catch (e) { showToast('Failed to load activity logs', 'error'); }
+    setLoading(false);
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div><h1 className="text-2xl font-bold text-gray-900">Activity Logs</h1><p className="text-gray-500">System activity and audit trail</p></div>
-      <div className="card p-12 text-center"><p className="text-gray-500">Activity logs will appear here</p></div>
+      {loading ? (
+        <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-red-500" /></div>
+      ) : logs.length === 0 ? (
+        <div className="card p-12 text-center"><p className="text-gray-500">No activity logs yet</p></div>
+      ) : (
+        <div className="card divide-y divide-gray-100">
+          {logs.map((log) => (
+            <div key={log.id} className="p-4 flex items-center gap-4">
+              <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600">
+                <Activity className="w-5 h-5" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">{log.action}</p>
+                <p className="text-sm text-gray-500">{log.entity_type} • {log.user_name || 'System'}</p>
+              </div>
+              <p className="text-sm text-gray-400">{new Date(log.created_at).toLocaleString()}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </motion.div>
   );
 }
