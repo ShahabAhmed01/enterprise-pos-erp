@@ -95,76 +95,54 @@ graph TD
 
 ---
 
-## 5. Deployment & Installation Guide
+## 🚀 Quick Start
 
-### 5.1 Environment Prerequisites
-- **Node.js**: v18.x or v20.x LTS (*Critical: Node.js v24+ is unsupported and will fail native bindings compilation*).
-- **Git**: Configured for your corporate network.
+### For End Users (Recommended)
+1. Go to [Releases](https://github.com/ShahabAhmed01/enterprise-pos-erp/releases)
+2. Download either:
+   - **Enterprise POS ERP Setup 1.0.0.exe** — installs to your PC
+   - **Enterprise POS ERP 1.0.0.exe** — portable, no installation needed
+3. Run and log in with default credentials:
 
-### 5.2 Local Development Setup
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | admin@enterprise-pos.com | admin123 |
+| Manager | manager@enterprise-pos.com | admin123 |
+| Cashier | cashier@enterprise-pos.com | admin123 |
+
+### For Developers
+Prerequisites: Node.js v20, npm
 
 ```bash
-# 1. Clone the repository to your local development environment
 git clone https://github.com/ShahabAhmed01/enterprise-pos-erp.git
 cd enterprise-pos-erp
-
-# 2. Install validated dependencies
 npm install
-
-# 3. Launch the application in development mode
 npm run dev:main
 ```
 
-### Quickstart (recommended)
-
-Prefer this command sequence for local development to ensure Vite and Electron start in the correct order (prevents `__dirname` and ESM runtime issues):
-
-```bash
-npm install
-npm run dev:electron
-```
-
-Notes:
-- Use `npm run dev:electron` instead of running Electron main files directly. This starts Vite first and then launches Electron so Node/Electron resolve native modules and `__dirname` correctly.
-- Ensure you have a Node LTS version (Node 18.x or 20.x) installed.
-
-### 5.3 Default Administrator Credentials
-
-Upon first launch, the system automatically seeds the secure database. You may log in using the following test credentials:
-
-| Access Level | Corporate Email | Default Password |
-|--------------|-----------------|------------------|
-| **Super Administrator** | `admin@enterprise-pos.com` | `admin123` |
-| **Branch Manager** | `manager@enterprise-pos.com` | `admin123` |
-| **POS Cashier** | `cashier@enterprise-pos.com` | `admin123` |
-
-*(Note: In production environments, ensure these default credentials are rotated immediately).*
-
 ---
 
-## 6. Operations & Troubleshooting
+## 5. Operations & Troubleshooting
 
-The following are documented resolutions for common environmental issues encountered during enterprise deployment:
-
-### 6.1 Application Starts with Multiple Blank Windows
+### 5.1 Application Starts with Multiple Blank Windows
 * **Root Cause**: Zombie `electron.exe` or `node.exe` processes from an interrupted debug session are holding port TCP/5173.
 * **Resolution**: Terminate all lingering instances via Task Manager (`taskkill /F /IM electron.exe` and `taskkill /F /IM node.exe`) and restart cleanly.
 
-### 6.2 Native Compilation Errors (`node-gyp`)
+### 5.2 Native Compilation Errors (`node-gyp`)
 * **Root Cause**: Host environment is running an incompatible, non-LTS version of Node.js (e.g., v24) causing Electron native module rebuilds to fail.
 * **Resolution**: Downgrade the host Node.js environment strictly to an LTS channel (v20.x or v18.x).
 
-### 6.3 Database Fault: `Statement closed`
+### 5.3 Database Fault: `Statement closed`
 * **Root Cause**: Reusing a freed SQL prepared statement reference during batched database seeding.
-* **Resolution**: Ensure all loop-based database inserts invoke `db.prepare()` independently to generate a fresh statement reference (Patched in `v1.0.0`).
+* **Resolution**: Ensure all loop-based database inserts invoke `db.prepare()` independently to generate a fresh statement reference (Patched in `v1.0.1`).
 
-### 6.4 Bundler Fault: `Cannot set properties of undefined (setting 'exports')`
+### 5.4 Bundler Fault: `Cannot set properties of undefined (setting 'exports')`
 * **Root Cause**: Aggressive ESM bundling by Vite strips the `module.exports` object from the CommonJS-based `sql.js` driver.
-* **Resolution**: Retain `sql.js` within the `rollupOptions.external` array in `vite.config.js` to defer resolution to Node's native CommonJS loader (Patched in `v1.0.0`).
+* **Resolution**: Retain `sql.js` within the `rollupOptions.external` array in `vite.config.js` to defer resolution to Node's native CommonJS loader (Patched in `v1.0.1`).
 
 ---
 
-## 7. Security & Compliance
+## 6. Security & Compliance
 
 The system is designed with enterprise-grade security considerations:
 - **Zero-Trust IPC**: The renderer process runs in an isolated context with Node integration disabled. All interactions traverse a strictly validated Context Bridge.
@@ -173,7 +151,7 @@ The system is designed with enterprise-grade security considerations:
 
 ---
 
-## 8. License & Copyright
+## 7. License & Copyright
 
 **Open Source (MIT License)**
 
