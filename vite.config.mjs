@@ -17,6 +17,11 @@ const __dirname = path.dirname(__filename);
 // where __dirname / require() work correctly.
 const electronExternals = [
   'electron',
+  'electron-store',
+  'electron-log',
+  'sql.js',
+  'bcryptjs',
+  'uuid',
   ...builtinModules,
   ...builtinModules.map((m) => `node:${m}`),
 ];
@@ -32,22 +37,26 @@ export default defineConfig({
         },
         vite: {
           build: {
-            define: {
-              '__dirname': JSON.stringify('.')
+            lib: {
+              entry: 'src/main/main.js',
+              formats: ['cjs'],
+              fileName: () => 'main.cjs'
             },
-            target: 'node18',
             outDir: 'dist-vite/main',
-            minify: false,
             rollupOptions: {
-              // Externalise electron, all Node built-ins, AND every npm package
-              // listed in dependencies / devDependencies so that CJS modules
-              // are never bundled into the ESM output.
-              external(id) {
-                if (electronExternals.includes(id)) return true;
-                // Treat any bare package name (no leading '.' or '/') as external
-                return !id.startsWith('.') && !path.isAbsolute(id);
-              },
+              external: electronExternals,
+              output: {
+                format: 'cjs',
+                entryFileNames: 'main.cjs',
+                exports: 'auto',
+                generatedCode: {
+                  constBindings: true
+                },
+                interop: 'auto'
+              }
             },
+            minify: false,
+            emptyOutDir: true
           },
         },
       },
@@ -73,6 +82,10 @@ export default defineConfig({
     ]),
     renderer(),
   ],
+  build: {
+    outDir: 'dist-vite/renderer',
+    base: './'
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src/renderer'),

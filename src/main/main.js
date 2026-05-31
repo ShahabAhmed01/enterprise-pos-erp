@@ -1,15 +1,20 @@
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 import { app, BrowserWindow, ipcMain, Menu, Tray, nativeImage, dialog, shell } from 'electron';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import log from 'electron-log';
 import Store from 'electron-store';
 import { initDatabase, getDatabase } from './database.js';
 import { setupIpcHandlers } from './ipc-handlers.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-globalThis.__filename = __filename;
-globalThis.__dirname = __dirname;
+app.disableHardwareAcceleration();
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('disable-gpu-compositing');
+app.commandLine.appendSwitch('disable-software-rasterizer');
+app.commandLine.appendSwitch('no-sandbox');
 
 // Configure logging
 log.transports.file.level = 'info';
@@ -41,12 +46,23 @@ let tray = null;
 // Global exception handler
 process.on('uncaughtException', (error) => {
   log.error('Uncaught Exception:', error);
-  dialog.showErrorBox('Critical Error', `An unexpected error occurred: ${error.message}`);
+  const message = error?.message || error?.toString() || 'Unknown error';
+  try {
+    dialog.showErrorBox('Critical Error', message);
+  } catch (e) {
+    log.error('Could not show error dialog:', e);
+  }
   app.exit(1);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  log.error('Unhandled Rejection at:', promise, 'reason:', reason);
+process.on('unhandledRejection', (reason) => {
+  log.error('Unhandled Rejection:', reason);
+  const message = reason?.message || reason?.toString() || 'Unknown rejection';
+  try {
+    dialog.showErrorBox('Unhandled Error', message);
+  } catch (e) {
+    log.error('Could not show error dialog:', e);
+  }
 });
 
 function createSplashWindow() {
@@ -87,16 +103,22 @@ function createMainWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       preload: path.join(__dirname, '../preload/preload.js'),
-      spellcheck: true
+      spellcheck: true,
+      webSecurity: false,
+      backgroundThrottling: false
     }
   });
 
   // Load the app
   const isDev = !app.isPackaged;
   if (isDev) {
-    mainWindow.loadURL('http://localhost:5173');
+    mainWindow.loadURL('http://localhost:5173').catch(err => {
+      log.error('Failed to load dev server:', err);
+    });
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../../dist-vite/index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html')).catch(err => {
+      log.error('Failed to load renderer:', err);
+    });
   }
 
   mainWindow.once('ready-to-show', () => {
@@ -104,6 +126,7 @@ function createMainWindow() {
       splashWindow.close();
     }
     mainWindow.show();
+    mainWindow.focus();
     log.info('Main window displayed');
   });
 
@@ -114,6 +137,20 @@ function createMainWindow() {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  mainWindow.webContents.on('render-process-gone', (event, details) => {
+    log.error('Renderer process gone:', details);
+  });
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    log.error('Failed to load URL:', errorCode, errorDescription, validatedURL);
+    setTimeout(() => {
+      if (mainWindow && !app.isPackaged) {
+        mainWindow.loadURL('http://localhost:5173');
+      } else if (mainWindow) {
+        mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+      }
+    }, 1000);
   });
 
   // Create application menu
@@ -274,7 +311,12 @@ app.whenReady().then(async () => {
     
   } catch (error) {
     log.error('Initialization error:', error);
-    dialog.showErrorBox('Initialization Error', error.message);
+    const message = error?.message || error?.toString() || 'Unknown initialization error';
+    try {
+      dialog.showErrorBox('Initialization Error', message);
+    } catch (e) {
+      log.error('Could not show error dialog:', e);
+    }
     app.exit(1);
   }
 });

@@ -1,3 +1,8 @@
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 import initSqlJs from 'sql.js';
 import fs from 'fs';
 import path from 'path';
@@ -5,10 +10,6 @@ import { app } from 'electron';
 import log from 'electron-log';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 let db = null;
 let rawDb = null;
@@ -27,44 +28,43 @@ function saveDatabase() {
   log.info(`Database saved to ${dbPath}`);
 }
 
+function extractRow(stmt) {
+  const values = stmt.get ? stmt.get() : [];
+  const columns = stmt.getColumnNames ? stmt.getColumnNames() : [];
+  const row = {};
+  columns.forEach((column, index) => {
+    row[column] = values[index];
+  });
+  return row;
+}
+
 function createStatement(sql) {
-  const statement = rawDb.prepare(sql);
-
-  const getRow = () => {
-    const values = statement.get ? statement.get() : [];
-    const columns = statement.getColumnNames ? statement.getColumnNames() : [];
-    const row = {};
-
-    columns.forEach((column, index) => {
-      row[column] = values[index];
-    });
-
-    return row;
-  };
-
   return {
     run(...params) {
-      statement.bind(params);
-      const result = statement.step();
-      statement.free();
+      const stmt = rawDb.prepare(sql);
+      stmt.bind(params);
+      const result = stmt.step();
+      stmt.free();
       isDirty = true;
       saveDatabase();
       return result;
     },
     get(...params) {
-      statement.bind(params);
-      const hasRow = statement.step();
-      const row = hasRow ? getRow() : undefined;
-      statement.free();
+      const stmt = rawDb.prepare(sql);
+      stmt.bind(params);
+      const hasRow = stmt.step();
+      const row = hasRow ? extractRow(stmt) : undefined;
+      stmt.free();
       return row;
     },
     all(...params) {
-      statement.bind(params);
+      const stmt = rawDb.prepare(sql);
+      stmt.bind(params);
       const rows = [];
-      while (statement.step()) {
-        rows.push(getRow());
+      while (stmt.step()) {
+        rows.push(extractRow(stmt));
       }
-      statement.free();
+      stmt.free();
       return rows;
     }
   };
@@ -76,7 +76,12 @@ async function initDatabase() {
   log.info(`Initializing database at: ${dbPath}`);
 
   const SQL = await initSqlJs({
-    locateFile: (filename) => path.join(__dirname, '../../node_modules/sql.js/dist', filename)
+    locateFile: file => {
+      if (app.isPackaged) {
+        return path.join(process.resourcesPath, file);
+      }
+      return path.join(__dirname, file);
+    }
   });
 
   if (fs.existsSync(dbPath)) {
@@ -914,7 +919,7 @@ async function seedInitialData() {
 
   // Create default admin user
   const adminRoleId = roles[0].id;
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const hashedPassword = '$2a$10$.4eUej4iLU9guHU3o6laJuKvEjqqzEi/ZwR7O19F4GHzgs.G0bmtW';
   db.prepare(`
     INSERT INTO users (id, email, password_hash, first_name, last_name, phone, role_id, pin, is_active)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)

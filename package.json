@@ -2,8 +2,7 @@
   "name": "enterprise-pos-erp",
   "version": "1.0.0",
   "description": "Enterprise-Grade POS & ERP Business Management Application",
-  "type": "module",
-  "main": "dist-vite/main/main.js",
+  "main": "dist-vite/main/main.cjs",
   "author": "Enterprise Solutions",
   "license": "Commercial",
   "scripts": {
@@ -57,21 +56,27 @@
       "output": "release"
     },
     "files": [
-      "src/main/**/*",
-      "src/preload/**/*",
       "dist-vite/**/*",
-      "node_modules/bindings/**/*",
-      "node_modules/file-uri-to-path/**/*"
+      "node_modules/**/*",
+      "package.json",
+      "splash.html"
     ],
     "asar": false,
+    "electronVersion": "28.2.2",
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
+    "forceCodeSigning": false,
     "win": {
       "sign": false,
+      "signingHashAlgorithms": [],
       "target": [
         {
           "target": "nsis",
-          "arch": [
-            "x64"
-          ]
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
         }
       ],
       "icon": "build/icon.ico"
@@ -81,7 +86,15 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Enterprise POS ERP"
-    }
+      "include": null,
+      "installerLanguages": ["en_US"],
+      "language": "1033"
+    },
+    "extraResources": [
+      {
+        "from": "node_modules/sql.js/dist/sql-wasm.wasm",
+        "to": "sql-wasm.wasm"
+      }
+    ]
   }
 }
