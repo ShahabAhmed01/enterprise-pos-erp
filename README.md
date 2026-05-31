@@ -87,10 +87,11 @@ graph TD
 
 ### 4.2 System Requirements
 
-* **OS Support**: Windows 10/11 Professional or Enterprise (64-bit)
-* **Processor**: Intel Core i3 / AMD Ryzen 3 or higher
-* **Memory**: Minimum 4GB RAM (8GB+ Recommended for multi-branch sync)
-* **Storage**: 1GB SSD space
+* **OS Support**: Windows 10/11 (64-bit) • macOS 10.13+ (64-bit) • Major Linux distributions (Ubuntu 20.04+, Debian, Fedora)
+* **Processor**: Intel Core i3 (7th gen) / AMD Ryzen 3 (2000 series) or newer – supports multi‑core scaling
+* **Memory**: Minimum 4 GB RAM (8 GB recommended for heavy reporting)
+* **Storage**: Minimum 1 GB SSD (additional space for data archives)
+* **Enterprise‑Scale**: Designed for multi‑site deployments, clustering, and high‑availability configurations
 
 ---
 
@@ -161,8 +162,8 @@ The system is designed with enterprise-grade security considerations:
 
 ## 8. License & Copyright
 
-**Proprietary License**
+**Open Source (MIT License)**
 
-Copyright © 2024 Enterprise Solutions. All rights reserved.
+This project is released under the MIT License. See the `LICENSE` file in this repository for the full text.
 
-This software and its documentation are proprietary and confidential. Unauthorized copying, distribution, modification, or use of this Software is strictly prohibited. For licensing inquiries, please consult the enclosed `LICENSE` file or contact your technical account manager.
+Contributions are welcome — please review the contribution guidelines and open issues or pull requests on GitHub.
