@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/Version-1.0.0-blue.svg?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/Architecture-Electron%20%7C%20React%20%7C%20Vite-green.svg?style=for-the-badge" alt="Stack">
   <img src="https://img.shields.io/badge/Status-Production%20Ready-success.svg?style=for-the-badge" alt="Status">
-  <img src="https://img.shields.io/badge/License-Proprietary-red.svg?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License"/>
 </div>
 
 ---
