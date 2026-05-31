@@ -32,6 +32,9 @@ export default defineConfig({
         },
         vite: {
           build: {
+            define: {
+              '__dirname': JSON.stringify('.')
+            },
             target: 'node18',
             outDir: 'dist-vite/main',
             minify: false,
