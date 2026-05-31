@@ -71,6 +71,22 @@ graph TD
 - **Customer Tiers & Loyalty**: Integrated membership levels (Standard/Silver/Gold) and wallet point systems.
 - **Employee Management**: Attendance tracking, salary disbursement, role-based shift assignments, and leave management.
 
+### 3.4 Demo & Sample Data
+The application ships with a rich, realistic demo dataset to evaluate all features immediately:
+
+| Entity | Records | Details |
+|--------|---------|---------|
+| **Products** | 10 | iPhone 15 Pro, Samsung Galaxy S24, Sony WH-1000XM5, MacBook Air M3, iPad Pro 12.9, Nike Air Max 270, Adidas Ultraboost 22, Pepsi/Coca-Cola 24 Packs, Nestle Water |
+| **Customers** | 7 | Pakistani profiles across Rawalpindi, Islamabad, Lahore, Karachi, Peshawar, Multan, Faisalabad — with Gold/Silver/Standard tiers & loyalty points |
+| **Suppliers** | 5 | TechWorld, Fashion Hub, FoodMart, Apple Pakistan, Nike Pakistan |
+| **Employees** | 6 | Branch Manager, Cashiers, Inventory Manager, Accountant, HR Officer — 4 active, 2 inactive |
+| **Sales** | 10 | 27 line-items across May 25–31, 2026 — mixed cash/card payments |
+| **Expenses** | 5 | Utilities, Salaries, Supplies, Marketing, Maintenance |
+| **Purchases** | 4 | Received, pending, and ordered statuses |
+| **Activity Logs** | 15 | Login, sale, inventory, expense events |
+| **Notifications** | 5 | Low stock alerts, system messages, achievement alerts |
+| **Account Transactions** | 4 | Opening balances, revenue, expense ledger entries |
+
 ---
 
 ## 4. Technical Specifications
@@ -102,7 +118,8 @@ graph TD
 2. Download either:
    - **Enterprise POS ERP Setup 1.0.0.exe** — installs to your PC
    - **Enterprise POS ERP 1.0.0.exe** — portable, no installation needed
-3. Run and log in with default credentials:
+3. Run the application. On first launch, a rich demo dataset (10 products, 7 customers, sample sales, expenses, purchases) is automatically seeded.
+4. Log in with default credentials:
 
 | Role | Email | Password |
 |------|-------|----------|
@@ -139,6 +156,10 @@ npm run dev:main
 ### 5.4 Bundler Fault: `Cannot set properties of undefined (setting 'exports')`
 * **Root Cause**: Aggressive ESM bundling by Vite strips the `module.exports` object from the CommonJS-based `sql.js` driver.
 * **Resolution**: Retain `sql.js` within the `rollupOptions.external` array in `vite.config.js` to defer resolution to Node's native CommonJS loader (Patched in `v1.0.1`).
+
+### 5.5 Slow Application Startup (Blank Window Delay)
+* **Root Cause**: Database initialization (seeding + migrations) ran synchronously before `mainWindow.show()`, causing a visible black/blank window for 2–10 seconds on first launch.
+* **Resolution**: Set `show: true` in `BrowserWindow` config and moved `initDatabase()` to execute after window creation. The window now appears instantly while database setup completes in the background (Patched in `v1.0.2`).
 
 ---
 

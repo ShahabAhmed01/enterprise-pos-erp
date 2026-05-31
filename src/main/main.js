@@ -96,7 +96,7 @@ function createMainWindow() {
     minWidth: 1200,
     minHeight: 700,
     frame: true,
-    show: false,
+    show: true,
     backgroundColor: '#f8fafc',
     titleBarStyle: 'default',
     webPreferences: {
@@ -122,12 +122,7 @@ function createMainWindow() {
   }
 
   mainWindow.once('ready-to-show', () => {
-    if (splashWindow) {
-      splashWindow.close();
-    }
-    mainWindow.show();
-    mainWindow.focus();
-    log.info('Main window displayed');
+    log.info('Main window ready');
   });
 
   mainWindow.on('resize', () => {
@@ -297,17 +292,23 @@ app.whenReady().then(async () => {
   log.info('App is ready, initializing...');
   
   try {
-    // Initialize database
-    await initDatabase();
-    log.info('Database initialized successfully');
-    
-    // Create windows
+    // Show splash and main window immediately
     createSplashWindow();
     const win = createMainWindow();
 
     // Setup IPC handlers with window reference
     setupIpcHandlers(ipcMain, store, win);
     log.info('IPC handlers setup complete');
+
+    // Initialize database in background
+    await initDatabase();
+    log.info('Database initialized successfully');
+
+    // Close splash once DB is ready
+    if (splashWindow) {
+      splashWindow.close();
+    }
+    win.webContents.send('app:ready');
     
   } catch (error) {
     log.error('Initialization error:', error);
